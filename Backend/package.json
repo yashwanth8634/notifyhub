@@ -5,10 +5,13 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run":"npx nodemon app.js"
+    "run": "npx nodemon app.js"
   },
   "keywords": [],
   "author": "Koppula Yashwanth Reddy",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
