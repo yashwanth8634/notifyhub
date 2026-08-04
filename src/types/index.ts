@@ -37,6 +37,7 @@ export interface Event {
   faculty_id: number | null;
   author_id: number;
   author_name?: string;
+  category?: string | null;
 }
 
 export interface Query {

@@ -1,10 +1,10 @@
 "use client";
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
-import { Bell, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import { Bell, LogOut, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -16,26 +16,25 @@ export function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { name: 'Announcements', path: '/announcements' },
-    { name: 'Events', path: '/events' },
-    { name: 'Alerts', path: '/alerts' },
+    { name: "Announcements", path: "/announcements" },
+    { name: "Events", path: "/events" },
+    { name: "Alerts", path: "/alerts" },
   ];
 
-  if (user?.role === 'super_admin') {
-
-    navLinks.push({ name: 'Dashboard', path: '/dashboard' });
+  if (user?.role === "super_admin") {
+    navLinks.push({ name: "Dashboard", path: "/dashboard" });
   } else {
-    navLinks.push({ name: 'Contact', path: '/contact' });
+    navLinks.push({ name: "Contact", path: "/contact" });
   }
 
   const handleLogout = () => {
     logout();
-    navigate.push('/');
+    navigate.push("/");
   };
 
   return (
     <div className="fixed top-6 left-0 right-0 z-50 px-4 flex justify-center w-full animate-fade-in font-display">
-      <nav className="glass-nav rounded-full w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between">
+      <nav className="glass-nav bg-grey-50 rounded-full w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="text-purple-400 group-hover:text-purple-300 transition-colors">
@@ -46,20 +45,27 @@ export function Navbar() {
             <span className="text-gradient">Hub</span>
           </span>
         </Link>
-        
+
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-1" onMouseLeave={() => setHoveredPath(null)}>
+        <div
+          className="hidden md:flex items-center space-x-1"
+          onMouseLeave={() => setHoveredPath(null)}
+        >
           {navLinks.map((link) => {
             const isActualActive = isActive(link.path);
-            const showPill = hoveredPath === link.path || (hoveredPath === null && isActualActive);
-            
+            const showPill =
+              hoveredPath === link.path ||
+              (hoveredPath === null && isActualActive);
+
             return (
               <Link
                 key={link.path}
                 href={link.path}
                 onMouseEnter={() => setHoveredPath(link.path)}
                 className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors z-10 ${
-                  isActualActive ? 'text-white' : 'text-gray-400 hover:text-white'
+                  isActualActive
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
                 <span className="relative z-10">{link.name}</span>
@@ -79,8 +85,15 @@ export function Navbar() {
         <div className="hidden md:flex items-center">
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 group cursor-default" title={user?.name}>
-                <img src="/logos/profileLogo.png" alt="Profile" className="w-7 h-7 rounded-full invert brightness-75 group-hover:brightness-100 transition-all cursor-pointer" />
+              <div
+                className="flex items-center gap-2 group cursor-default"
+                title={user?.name}
+              >
+                <img
+                  src="/logos/profileLogo.png"
+                  alt="Profile"
+                  className="w-7 h-7 rounded-full invert brightness-75 group-hover:brightness-100 transition-all cursor-pointer"
+                />
               </div>
               <button
                 onClick={handleLogout}
@@ -121,15 +134,15 @@ export function Navbar() {
                 href={link.path}
                 className={`block px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                   isActive(link.path)
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400 hover:bg-white/5 hover:text-white"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
                 {link.name}
               </Link>
             ))}
-            
+
             <div className="pt-4 pb-2">
               {!isAuthenticated ? (
                 <Link

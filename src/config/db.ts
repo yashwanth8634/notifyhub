@@ -1,9 +1,13 @@
 // @ts-nocheck
 import { Pool } from '@neondatabase/serverless';
 
+const connString = process.env.DB_NEON_DATABASE_URL;
+if (!connString) {
+  console.error('DB_NEON_DATABASE_URL is not set. Please create a .env.local with the connection string.');
+}
 
 export const pool = new Pool({
-  connectionString: process.env.DB_NEON_DATABASE_URL,
+  connectionString: connString,
   ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,
@@ -15,6 +19,9 @@ pool.on('error', (err) => {
 });
 
 export async function query(text: string, params: any[] = []) {
+  if (!connString) {
+    throw new Error('DB_NEON_DATABASE_URL not configured. Aborting query.');
+  }
   const start = Date.now();
   const result = await pool.query(text, params);
   const duration = Date.now() - start;

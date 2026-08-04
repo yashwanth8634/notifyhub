@@ -1,6 +1,8 @@
 "use server";
 
 import { userService } from '@/services/userService';
+import { userModel } from '@/models/userModel';
+import { auditModel } from '@/models/auditModel';
 import { getSession } from '@/config/auth';
 
 function requireRole(user: any, roles: string[]) {
@@ -38,4 +40,19 @@ export async function resetPassword(id: number, newPassword: string) {
   const user = await getSession();
   requireRole(user, ['super_admin']);
   return userService.resetPassword(user!.id, id, newPassword);
+}
+
+export async function reactivateUser(id: number) {
+  const user = await getSession();
+  requireRole(user, ['super_admin']);
+  return userService.reactivate(user!.id, id);
+}
+
+export async function deleteUser(id: number) {
+  const user = await getSession();
+  requireRole(user, ['super_admin']);
+  const deleted = await userModel.delete(id);
+  if (!deleted) throw new Error('NOT_FOUND');
+  await auditModel.log(user!.id, 'delete', 'user', id);
+  return { success: true };
 }

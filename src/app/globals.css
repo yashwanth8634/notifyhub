@@ -43,55 +43,93 @@
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: 'Gilroy', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  
+
   --animate-fade-in: fade-in 0.8s ease-out forwards;
   --animate-slide-up: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-slow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(0.98); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
 }
 
 @layer base {
   html {
     @apply bg-[#0c0c0f];
   }
-  
+
   body {
     @apply bg-[#0c0c0f] text-gray-300 antialiased font-sans cursor-default selection:bg-purple-500/30 selection:text-white min-h-screen flex flex-col;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display text-white tracking-tight;
   }
-  
-  a, button {
+
+  a,
+  button {
     @apply cursor-pointer transition-all duration-200 ease-in-out;
   }
 }
 
 @layer components {
   .glass-nav {
-    @apply bg-[#151515]/70 backdrop-blur-xl border border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.2)];
+    /* stronger frosted glass for prominent UI surfaces like the navbar */
+    @apply bg-[#0f0f10]/50 backdrop-blur-2xl border border-white/10;
+    background-color: rgba(21, 21, 21, 0.45);
+    /* use native properties for saturation and blur to avoid Tailwind parsing issues */
+    -webkit-backdrop-filter: saturate(1.5) blur(20px);
+    backdrop-filter: saturate(1.5) blur(20px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500;
+    @apply bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-indigo-500;
   }
-  
+
   .btn-gradient {
-    @apply bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)];
+    @apply bg-linear-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+
+  .btn-gradient:hover {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
   }
 }

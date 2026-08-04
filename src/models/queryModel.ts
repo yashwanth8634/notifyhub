@@ -47,6 +47,16 @@ export const queryModel = {
     return result.rows[0];
   },
 
+  async createAnonymous(data) {
+    const { subject, message, assigned_to } = data;
+    const result = await query(
+      `INSERT INTO queries (student_id, subject, message, assigned_to) 
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [null, subject, message, assigned_to || null]
+    );
+    return result.rows[0];
+  },
+
   async respond(id, responseData) {
     const { response, status } = responseData;
     const result = await query(

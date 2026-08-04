@@ -18,6 +18,11 @@ export async function getQueries() {
 
 export async function createQuery(data: any) {
   const user = await getSession();
+
+  if (!user) {
+    return queryService.createAnonymous(data);
+  }
+
   requireRole(user, ['student']);
   return queryService.create(user, data);
 }

@@ -21,6 +21,10 @@ export const queryService = {
     return queryModel.create({ ...data, student_id: user.id });
   },
 
+  async createAnonymous(data) {
+    return queryModel.createAnonymous(data);
+  },
+
   async respond(user, id, responseData) {
     const existing = await queryModel.findById(id);
     if (!existing) throw { status: 404, message: 'Query not found', code: 'NOT_FOUND' };

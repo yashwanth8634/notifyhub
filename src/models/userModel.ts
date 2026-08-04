@@ -27,6 +27,11 @@ export const userModel = {
     return result.rows[0];
   },
 
+  async findByRole(role) {
+    const result = await query('SELECT * FROM users WHERE role = $1 LIMIT 1', [role]);
+    return result.rows[0];
+  },
+
   async update(id, data) {
     const { name, role, department_id, faculty_id, is_active } = data;
     const result = await query(
@@ -44,6 +49,17 @@ export const userModel = {
 
   async deactivate(id) {
     const result = await query('UPDATE users SET is_active = false WHERE id = $1 RETURNING id', [id]);
+    return result.rows[0];
+  },
+
+  async reactivate(id) {
+    const result = await query('UPDATE users SET is_active = true WHERE id = $1 RETURNING id', [id]);
+    return result.rows[0];
+  },
+
+  async delete(id) {
+    // permanently remove a user
+    const result = await query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
     return result.rows[0];
   },
 

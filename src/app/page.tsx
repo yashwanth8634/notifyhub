@@ -44,7 +44,7 @@ export default function HomePage() {
           href="/announcements" 
           className="btn-gradient inline-flex items-center gap-3 px-8 py-4 rounded-xl text-lg font-medium transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
         >
-          <Bell className="w-5 h-5 fill-current opacity-80" />
+          <Bell className="w-5 h-5 fill-current opacity-80 font-display" />
           View Announcements
         </Link>
       )}
