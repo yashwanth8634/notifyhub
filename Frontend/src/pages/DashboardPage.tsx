@@ -4,7 +4,7 @@ import { queriesApi } from '../api/queriesApi';
 import type { User, Query, Role } from '../types';
 import { RoleBadge } from '../components/RoleBadge';
 import { Modal } from '../components/Modal';
-import { Shield, Users, Search, MessageSquare, Plus, Loader2, UserPlus } from 'lucide-react';
+import { Shield, Users, Search, MessageSquare, Loader2, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
 import { LoadingScreen } from '../components/LoadingScreen';
 

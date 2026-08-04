@@ -1,5 +1,5 @@
-import pg from 'pg';
-import { DATABASE_URL } from './env.js';
+import pg from '@neondatabase/serverless';
+import { DB_NEON_DATABASE_URL } from './env.js';
 
 const { Pool } = pg;
 
@@ -8,7 +8,7 @@ const { Pool } = pg;
  * Uses DATABASE_URL from env, configured for Neon serverless with SSL.
  */
 const pool = new Pool({
-  connectionString: DATABASE_URL,
+  connectionString: DB_NEON_DATABASE_URL,
   ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,

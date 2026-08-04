@@ -21,7 +21,7 @@ function required(key) {
 }
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const DATABASE_URL = required('DATABASE_URL');
+const DB_NEON_DATABASE_URL = required('DB_NEON_DATABASE_URL');
 const JWT_SECRET = required('JWT_SECRET');
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
@@ -29,7 +29,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export {
   PORT,
-  DATABASE_URL,
+  DB_NEON_DATABASE_URL,
   JWT_SECRET,
   JWT_EXPIRES_IN,
   BCRYPT_ROUNDS,
