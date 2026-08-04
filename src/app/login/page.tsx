@@ -1,23 +1,23 @@
 "use client";
 import { loginAction } from "@/actions/auth";
-import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { Bell, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { Bell, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useRouter();
-  const from = '/';
+  const from = "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
@@ -25,10 +25,10 @@ export default function LoginPage() {
       if (!data.success) {
         throw new Error(data.error);
       }
-      login(data.user, data.token as unknown as string);
+      login(data.user);
       navigate.replace(from);
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to login');
+      setError(err.response?.data?.error?.message || "Failed to login");
     } finally {
       setLoading(false);
     }
@@ -48,17 +48,19 @@ export default function LoginPage() {
             Sign in to access your administrative dashboard
           </p>
         </div>
-        
+
         <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
               <p className="text-sm text-red-400">{error}</p>
             </div>
           )}
-          
+
           <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
               <input
                 id="email-address"
                 name="email"
@@ -72,7 +74,9 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
                 id="password"
                 name="password"
@@ -91,7 +95,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 btn-gradient text-sm font-bold rounded-xl disabled:opacity-70 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+              className="group relative w-full flex items-center justify-center py-3 px-4 btn-gradient text-sm font-bold rounded-xl disabled:opacity-70 transition-all transform hover:scale-[1.02] gap-2"
             >
               {loading ? (
                 <>
@@ -99,7 +103,7 @@ export default function LoginPage() {
                   Signing in...
                 </>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </button>
           </div>
