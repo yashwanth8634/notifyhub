@@ -22,20 +22,6 @@ app.use(requestLogger);
 // API Routes
 app.use('/api', apiRoutes);
 
-// Serve frontend static files in production
-const publicDir = path.join(__dirname, '../public');
-app.use(express.static(publicDir));
-
-// SPA fallback — serve index.html for any non-API route
-app.use((req, res, next) => {
-  // Only fall back for GET requests that don't start with /api
-  if (req.method === 'GET' && !req.path.startsWith('/api')) {
-    res.sendFile(path.join(publicDir, 'index.html'));
-  } else {
-    next();
-  }
-});
-
 // Centralized error handler
 app.use(errorHandler);
 

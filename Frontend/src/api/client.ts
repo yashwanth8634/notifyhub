@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // During development, Vite proxy handles the base URL. In prod, it's relative.
 export const apiClient = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://notifyhub-backend-x434.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   }
