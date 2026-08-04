@@ -34,7 +34,7 @@ export function Navbar() {
 
   return (
     <div className="fixed top-6 left-0 right-0 z-50 px-4 flex justify-center w-full animate-fade-in font-display">
-      <nav className="glass-nav bg-grey-50 rounded-full w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between">
+      <nav className="glass-nav bg-black rounded-full w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="text-purple-400 group-hover:text-purple-300 transition-colors">

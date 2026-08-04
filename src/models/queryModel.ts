@@ -3,9 +3,10 @@ import { query } from '@/config/db';
 
 export const queryModel = {
   async findAll({ status, assigned_to } = {}) {
-    let sql = `SELECT q.*, u.name as student_name 
+    // Use LEFT JOIN so anonymous queries (student_id IS NULL) are included
+    let sql = `SELECT q.*, u.name as student_name
                FROM queries q
-               JOIN users u ON q.student_id = u.id
+               LEFT JOIN users u ON q.student_id = u.id
                WHERE 1=1`;
     const params = [];
     let paramIndex = 1;
