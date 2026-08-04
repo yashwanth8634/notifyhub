@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "vercel-build": "cd ../Frontend && npm install && npm run build && cp -r dist/. ../Backend/public",
     "start": "node server.js",
-    "dev": "npx nodemon server.js",
     "db:setup": "node src/config/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -4,9 +4,9 @@ import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { requestLogger } from '../Backend/src/middlewares/requestLogger.js';
-import { errorHandler } from '../Backend/src/middlewares/errorHandler.js';
-import apiRoutes from '../Backend/src/routes/index.js';
+import { requestLogger } from './middlewares/requestLogger.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import apiRoutes from './routes/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
