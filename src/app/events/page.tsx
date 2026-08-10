@@ -7,6 +7,7 @@ import { Calendar, MapPin, Trash2, Edit, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Modal } from "@/components/Modal";
+import { Button } from "@/components/Button";
 
 export default function EventsPage() {
   const { hasRole, user } = useAuth();
@@ -99,31 +100,34 @@ export default function EventsPage() {
           <h1 className="text-4xl font-bold text-white tracking-tight">
             Upcoming Events
           </h1>
-          <p className="mt-2 text-gray-400 text-lg">
+          <p className=" text-gray-400 text-lg">
             Workshops, seminars, and campus activities
           </p>
         </div>
         {canPublish && (
-          <button
+          <Button
             onClick={() => setIsModalOpen(true)}
-            className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-full font-medium"
+            variant="secondary"
+            className="tracking-tight"
           >
             <Plus className="w-5 h-5" />
             New Event
-          </button>
+          </Button>
         )}
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className="mb-4">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
           {CATEGORIES.map((cat) => (
-            <button
+            <Button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-full border ${category === cat ? "bg-blue-500 text-white border-blue-600" : "text-gray-300 border-white/10"} transition-colors`}
+              variant={category === cat ? "primary" : "outline"}
+              size="sm"
+              className={category === cat ? "" : "text-gray-300"}
             >
               {cat}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -132,7 +136,7 @@ export default function EventsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search events..."
-            className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
           />
         </div>
       </div>
@@ -148,10 +152,10 @@ export default function EventsPage() {
           {filtered.map((event) => (
             <div
               key={event.id}
-              className="glass-nav rounded-2xl p-6 flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/5"
+              className="glass-nav rounded-md p-6 flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/5"
             >
               <div className="flex justify-between items-start mb-5">
-                <div className="bg-purple-500/10 text-purple-400 p-3 rounded-xl text-center w-20 border border-purple-500/20">
+                <div className="bg-purple-500/10 text-purple-400 p-3 rounded-md text-center w-20 border border-purple-500/20">
                   <div className="text-xs font-bold uppercase tracking-wider">
                     {format(new Date(event.event_date), "MMM")}
                   </div>
@@ -163,18 +167,24 @@ export default function EventsPage() {
                 <div className="flex gap-2">
                   {canPublish &&
                     (user?.role === "super_admin" ||
-                      user?.id === event.author_id) && (
-                      <button className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors">
+                      user?.id === event.user_id) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 rounded-md"
+                      >
                         <Edit className="w-4 h-4" />
-                      </button>
+                      </Button>
                     )}
                   {canDelete && (
-                    <button
+                    <Button
                       onClick={() => handleDelete(event.id)}
-                      className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors"
+                      variant="danger"
+                      size="sm"
+                      className="p-2 rounded-md"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -217,7 +227,7 @@ export default function EventsPage() {
             <input
               required
               type="text"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
@@ -233,7 +243,7 @@ export default function EventsPage() {
               <input
                 required
                 type="datetime-local"
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 value={formData.event_date}
                 onChange={(e) =>
                   setFormData({ ...formData, event_date: e.target.value })
@@ -246,7 +256,7 @@ export default function EventsPage() {
               </label>
               <input
                 type="text"
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                 value={formData.location}
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
@@ -262,7 +272,7 @@ export default function EventsPage() {
             <textarea
               required
               rows={4}
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -272,23 +282,19 @@ export default function EventsPage() {
           </div>
           {/* Category removed from Events */}
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-            <button
+            <Button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              variant="ghost"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
-            >
+            </Button>
+            <Button type="submit" disabled={isSubmitting} variant="primary">
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : null}
               {isSubmitting ? "Creating..." : "Create Event"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

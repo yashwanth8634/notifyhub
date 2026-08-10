@@ -34,7 +34,7 @@ export function Navbar() {
 
   return (
     <div className="fixed top-6 left-0 right-0 z-50 px-4 flex justify-center w-full animate-fade-in font-display">
-      <nav className="glass-nav bg-black rounded-full w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between">
+      <nav className="glass-nav bg-black rounded-md w-full max-w-5xl px-4 py-3 sm:px-6 flex items-center justify-between border-white/20">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="text-purple-400 group-hover:text-purple-300 transition-colors">
@@ -62,7 +62,7 @@ export function Navbar() {
                 key={link.path}
                 href={link.path}
                 onMouseEnter={() => setHoveredPath(link.path)}
-                className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors z-10 ${
+                className={`relative px-4 py-2 rounded-md text-sm font-medium transition-colors z-10 ${
                   isActualActive
                     ? "text-white"
                     : "text-gray-400 hover:text-white"
@@ -72,7 +72,7 @@ export function Navbar() {
                 {showPill && (
                   <motion.div
                     layoutId="navbar-pill"
-                    className="absolute inset-0 bg-white/10 rounded-full -z-10"
+                    className="absolute inset-0 bg-white/10 rounded-md -z-10"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -83,6 +83,12 @@ export function Navbar() {
 
         {/* Auth / Action */}
         <div className="hidden md:flex items-center">
+          <a
+            className="h-8 w-8 mr-4 justify-center items-center hover:-translate-y-1"
+            href="/alerts"
+          >
+            <img src="/logos/alert.png" alt="alerts" />
+          </a>
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <div
@@ -92,12 +98,12 @@ export function Navbar() {
                 <img
                   src="/logos/profileLogo.png"
                   alt="Profile"
-                  className="w-7 h-7 rounded-full invert brightness-75 group-hover:brightness-100 transition-all cursor-pointer"
+                  className="w-7 h-7 rounded-md invert brightness-75 group-hover:brightness-100 transition-all cursor-pointer"
                 />
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-red-400 hover:bg-white/10 rounded-full transition-colors"
+                className="p-2 text-gray-400 hover:text-red-400 hover:bg-white/10 rounded-md transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-5 h-5" />
@@ -106,7 +112,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="inline-flex items-center justify-center px-6 py-2 border border-gray-600 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:border-gray-400 hover:bg-white/5 transition-all duration-300"
+              className="inline-flex items-center justify-center px-6 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:border-gray-400 hover:bg-white/5 transition-all duration-300"
             >
               Login
             </Link>
@@ -115,18 +121,24 @@ export function Navbar() {
 
         {/* Mobile menu button */}
         <div className="flex md:hidden">
+          <a
+            className="h-9 w-9 mr-2 justify-center items-center"
+            href="/alerts"
+          >
+            <img src="/logos/alert.png" alt="alerts" />
+          </a>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </nav>
 
       {/* Mobile menu dropdown */}
       {isOpen && (
-        <div className="absolute top-20 left-4 right-4 glass-nav rounded-2xl overflow-hidden md:hidden animate-slide-up flex flex-col p-2">
+        <div className="absolute top-20 left-4 right-4 glass-nav rounded-2xl overflow-hidden md:hidden animate-slide-up flex flex-col p-2 bg-black backdrop-blur-md">
           <div className="space-y-1">
             {navLinks.map((link) => (
               <Link

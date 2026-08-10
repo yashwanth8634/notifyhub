@@ -286,7 +286,7 @@ export default function DashboardPage() {
       <div className="flex gap-2 mb-8">
         <button
           onClick={() => setActiveTab("accounts")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-all ${
             activeTab === "accounts"
               ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
               : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
@@ -297,7 +297,7 @@ export default function DashboardPage() {
         </button>
         <button
           onClick={() => setActiveTab("queries")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-all ${
             activeTab === "queries"
               ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
               : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
@@ -306,7 +306,7 @@ export default function DashboardPage() {
           <MessageSquare className="w-4 h-4" />
           Queries
           {queries.filter((q) => q.status === "open").length > 0 && (
-            <span className="ml-1 px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-full border border-red-500/30">
+            <span className="ml-1 px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-md border border-red-500/30">
               {queries.filter((q) => q.status === "open").length}
             </span>
           )}
@@ -315,7 +315,7 @@ export default function DashboardPage() {
 
       {/* ===== ACCOUNTS TAB ===== */}
       {activeTab === "accounts" && (
-        <div className="glass-nav rounded-3xl border border-white/5 overflow-hidden shadow-2xl">
+        <div className="glass-nav rounded-md border border-white/5 overflow-hidden shadow-2xl">
           <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 className="text-xl font-bold flex items-center gap-3 text-white">
               <Users className="w-6 h-6 text-purple-400" />
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                 </div>
                 <input
                   type="text"
-                  className="block w-full sm:w-56 pl-11 pr-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:outline-none transition-all"
+                  className="block w-full sm:w-56 pl-11 pr-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:outline-none transition-all"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -337,7 +337,7 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={() => setIsCreateUserOpen(true)}
-                className="btn-gradient flex items-center gap-2 px-5 py-3 rounded-xl font-medium whitespace-nowrap"
+                className="bg-gray-700 tracking-tight flex items-center gap-2 px-4 py-2 rounded-md font-medium whitespace-nowrap"
               >
                 <UserPlus className="w-5 h-5" />
                 Add User
@@ -416,7 +416,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 inline-flex text-xs font-bold tracking-wide rounded-full border ${u.is_active ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}
+                          className={`px-3 py-1 inline-flex text-xs font-bold tracking-wide rounded-md border ${u.is_active ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}
                         >
                           {u.is_active ? "Active" : "Inactive"}
                         </span>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
           {queriesLoading ? (
             <LoadingScreen />
           ) : queries.length === 0 ? (
-            <div className="text-center py-16 glass-nav rounded-2xl border border-white/5">
+            <div className="text-center py-16 glass-nav rounded-md border border-white/5">
               <MessageSquare className="w-12 h-12 text-gray-600 mx-auto mb-4" />
               <p className="text-gray-400 text-lg">No queries submitted yet.</p>
             </div>
@@ -502,7 +502,7 @@ export default function DashboardPage() {
             queries.map((q) => (
               <div
                 key={q.id}
-                className="glass-nav rounded-3xl p-6 border border-white/5 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
+                className="glass-nav rounded-md p-6 border border-white/5 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex-1">
@@ -511,9 +511,29 @@ export default function DashboardPage() {
                         {q.subject}
                       </h3>
                       <span
-                        className={`px-2.5 py-0.5 text-xs font-bold rounded-full border ${statusColor(q.status)}`}
+                        className={`px-2.5 py-0.5 text-xs font-bold rounded-md border ${statusColor(q.status)}`}
                       >
                         {q.status.replace("_", " ")}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-3">
+                      <span>
+                        Name:{" "}
+                        <span className="text-gray-400">
+                          {q.name || "—"}
+                        </span>
+                      </span>
+                      <span>
+                        Roll No:{" "}
+                        <span className="text-gray-400">
+                          {q.roll_no || "—"}
+                        </span>
+                      </span>
+                      <span>
+                        Mail:{" "}
+                        <span className="text-gray-400">
+                          {q.email || "—"}
+                        </span>
                       </span>
                     </div>
                     <p className="text-gray-300 text-sm leading-relaxed mb-3">
@@ -523,7 +543,7 @@ export default function DashboardPage() {
                       <span>
                         From:{" "}
                         <span className="text-gray-400">
-                          {q.student_name || `Student #${q.student_id}`}
+                          {q.name || "Anonymous"}
                         </span>
                       </span>
                       <span>
@@ -531,7 +551,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     {q.response && (
-                      <div className="mt-4 p-4 bg-green-500/5 border border-green-500/10 rounded-xl">
+                      <div className="mt-4 p-4 bg-green-500/5 border border-green-500/10 rounded-md">
                         <p className="text-xs font-bold text-green-400 uppercase tracking-wide mb-1">
                           Admin Response
                         </p>
@@ -550,7 +570,7 @@ export default function DashboardPage() {
                   {q.status !== "resolved" && (
                     <button
                       onClick={() => openRespond(q)}
-                      className="btn-gradient px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap self-start"
+                      className="bg-gray-700 tracking-tight px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap self-start"
                     >
                       Respond
                     </button>
@@ -576,7 +596,7 @@ export default function DashboardPage() {
             <input
               required
               type="text"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={createUserForm.name}
               onChange={(e) =>
                 setCreateUserForm({ ...createUserForm, name: e.target.value })
@@ -591,7 +611,7 @@ export default function DashboardPage() {
             <input
               required
               type="email"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={createUserForm.email}
               onChange={(e) =>
                 setCreateUserForm({ ...createUserForm, email: e.target.value })
@@ -606,7 +626,7 @@ export default function DashboardPage() {
             <input
               required
               type="password"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={createUserForm.password}
               onChange={(e) =>
                 setCreateUserForm({
@@ -633,14 +653,14 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={() => setIsCreateUserOpen(false)}
-              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isCreatingUser}
-              className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
+              className="btn-gradient px-6 py-2.5 rounded-md font-medium disabled:opacity-70 flex items-center"
             >
               {isCreatingUser ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -665,7 +685,7 @@ export default function DashboardPage() {
             <input
               required
               type="text"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={editUserForm.name}
               onChange={(e) =>
                 setEditUserForm({ ...editUserForm, name: e.target.value })
@@ -679,7 +699,7 @@ export default function DashboardPage() {
             <input
               required
               type="email"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={editUserForm.email}
               onChange={(e) =>
                 setEditUserForm({ ...editUserForm, email: e.target.value })
@@ -702,14 +722,14 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={() => setIsEditUserOpen(false)}
-              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isEditingUser}
-              className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
+              className="btn-gradient px-6 py-2.5 rounded-md font-medium disabled:opacity-70 flex items-center"
             >
               {isEditingUser ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -731,7 +751,7 @@ export default function DashboardPage() {
       >
         {respondQuery && (
           <form onSubmit={handleRespond} className="space-y-5">
-            <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+            <div className="p-4 bg-white/5 rounded-md border border-white/5">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
                 Subject
               </p>
@@ -742,11 +762,26 @@ export default function DashboardPage() {
                 Message
               </p>
               <p className="text-sm text-gray-300">{respondQuery.message}</p>
-              <p className="text-xs text-gray-500 mt-3">
-                From:{" "}
-                {respondQuery.student_name ||
-                  `Student #${respondQuery.student_id}`}
-              </p>
+              <div className="flex flex-wrap gap-4 text-xs text-gray-500 mt-3">
+                <span>
+                  From:{" "}
+                  <span className="text-gray-400">
+                    {respondQuery.name || "—"}
+                  </span>
+                </span>
+                <span>
+                  Roll No:{" "}
+                  <span className="text-gray-400">
+                    {respondQuery.roll_no || "—"}
+                  </span>
+                </span>
+                <span>
+                  Mail:{" "}
+                  <span className="text-gray-400">
+                    {respondQuery.email || "—"}
+                  </span>
+                </span>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -755,7 +790,7 @@ export default function DashboardPage() {
               <textarea
                 required
                 rows={5}
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
                 value={responseText}
                 onChange={(e) => setResponseText(e.target.value)}
                 placeholder="Type your response here..."
@@ -768,14 +803,14 @@ export default function DashboardPage() {
                   setIsRespondOpen(false);
                   setRespondQuery(null);
                 }}
-                className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+                className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isResponding}
-                className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
+                className="btn-gradient px-6 py-2.5 rounded-md font-medium disabled:opacity-70 flex items-center"
               >
                 {isResponding ? (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -804,7 +839,7 @@ export default function DashboardPage() {
             <input
               required
               type="password"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={resetPasswordValue}
               onChange={(e) => setResetPasswordValue(e.target.value)}
               placeholder="Enter new password"
@@ -817,14 +852,14 @@ export default function DashboardPage() {
                 setIsResetOpen(false);
                 setResetUserId(null);
               }}
-              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isResetting}
-              className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
+              className="btn-gradient px-6 py-2.5 rounded-md font-medium disabled:opacity-70 flex items-center"
             >
               {isResetting ? "Resetting..." : "Reset Password"}
             </button>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { Button } from "@/components/Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -44,13 +45,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
           <h2 className="text-xl font-bold text-white tracking-tight">
             {title}
           </h2>
-          <button
+          <Button
             onClick={onClose}
-            className="text-gray-400 hover:text-white rounded-full p-2 hover:bg-white/10 transition-colors"
+            variant="ghost"
+            size="sm"
+            className="rounded-full p-2"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
         <div className="p-6 overflow-y-auto">{children}</div>
       </div>

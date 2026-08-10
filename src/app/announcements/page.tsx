@@ -10,6 +10,7 @@ import type { Announcement } from "@/types";
 import { NoticeCard } from "@/components/NoticeCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Modal } from "@/components/Modal";
+import { Button } from "@/components/Button";
 import { Plus, Loader2 } from "lucide-react";
 
 export default function AnnouncementsPage() {
@@ -19,11 +20,21 @@ export default function AnnouncementsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
 
+  const ANNOUNCEMENT_CATEGORIES = [
+    { label: "Exams", value: "exams" },
+    { label: "Placements", value: "placements" },
+    { label: "Events", value: "events" },
+    { label: "General", value: "general" },
+    { label: "Finance", value: "finance" },
+    { label: "Holiday", value: "holiday" },
+  ];
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    department: "",
     body: "",
-    category: "",
+    category: "general",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,7 +69,7 @@ export default function AnnouncementsPage() {
       const created = await createAnnouncement(formData);
       setAnnouncements([created, ...announcements]);
       setIsModalOpen(false);
-      setFormData({ title: "", body: "", category: "" });
+      setFormData({ title: "", department: "", body: "", category: "general" });
     } catch (error) {
       console.error("Failed to create announcement:", error);
       alert("Failed to create announcement");
@@ -93,7 +104,9 @@ export default function AnnouncementsPage() {
       a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.body.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      category === "All" ? true : (a.category || "General") === category;
+      category === "All"
+        ? true
+        : (a.category || "General").toLowerCase() === category.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -104,31 +117,34 @@ export default function AnnouncementsPage() {
           <h1 className="text-4xl font-bold text-white tracking-tight">
             Announcements
           </h1>
-          <p className="mt-2 text-gray-400 text-lg">
+          <p className="text-gray-400 text-lg">
             General campus updates and notices
           </p>
         </div>
         {canPublish && (
-          <button
+          <Button
             onClick={() => setIsModalOpen(true)}
-            className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-full font-medium"
+            variant="secondary"
+            className="tracking-tight"
           >
             <Plus className="w-5 h-5" />
             New Announcement
-          </button>
+          </Button>
         )}
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           {CATEGORIES.map((cat) => (
-            <button
+            <Button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-full border ${category === cat ? "bg-blue-500 text-white border-blue-600" : "text-gray-300 border-white/10"} transition-colors`}
+              variant={category === cat ? "primary" : "outline"}
+              size="sm"
+              className={category === cat ? "" : "text-gray-300"}
             >
               {cat}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -137,7 +153,7 @@ export default function AnnouncementsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search announcements..."
-            className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
           />
         </div>
       </div>
@@ -145,20 +161,20 @@ export default function AnnouncementsPage() {
       {loading ? (
         <LoadingScreen />
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 glass-nav rounded-2xl">
+        <div className="text-center py-16 glass-nav rounded-md">
           <p className="text-gray-400 text-lg">
             No announcements found matching your criteria.
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-1">
           {filtered.map((notice) => (
             <NoticeCard
               key={notice.id}
               notice={notice}
               canEdit={
                 canPublish &&
-                (user?.role === "super_admin" || user?.id === notice.author_id)
+                (user?.role === "super_admin" || user?.id === notice.user_id)
               }
               canDelete={canDelete}
               onDelete={handleDelete}
@@ -180,7 +196,7 @@ export default function AnnouncementsPage() {
             <input
               required
               type="text"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
@@ -190,16 +206,35 @@ export default function AnnouncementsPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Category (Optional)
+              Category
             </label>
-            <input
-              type="text"
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            <select
+              required
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
               value={formData.category}
               onChange={(e) =>
                 setFormData({ ...formData, category: e.target.value })
               }
-              placeholder="e.g. Academics, Sports"
+            >
+              {ANNOUNCEMENT_CATEGORIES.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Department
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              placeholder="Enter department name"
             />
           </div>
           <div>
@@ -209,7 +244,7 @@ export default function AnnouncementsPage() {
             <textarea
               required
               rows={5}
-              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
               value={formData.body}
               onChange={(e) =>
                 setFormData({ ...formData, body: e.target.value })
@@ -218,23 +253,19 @@ export default function AnnouncementsPage() {
             />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-            <button
+            <Button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              variant="ghost"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-gradient px-6 py-2.5 rounded-xl font-medium disabled:opacity-70 flex items-center"
-            >
+            </Button>
+            <Button type="submit" disabled={isSubmitting} variant="primary">
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : null}
               {isSubmitting ? "Publishing..." : "Publish"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

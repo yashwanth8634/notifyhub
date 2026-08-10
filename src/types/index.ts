@@ -6,7 +6,6 @@ export interface User {
   email: string;
   role: Role;
   department_id: number | null;
-  faculty_id: number | null;
   is_active: boolean;
   created_at: string;
 }
@@ -18,11 +17,10 @@ export interface Announcement {
   category: string | null;
   department_id: number | null;
   department_name?: string;
-  faculty_id: number | null;
-  faculty_name?: string;
-  author_id: number;
+  user_id: number;
   author_name?: string;
   is_alert: boolean;
+  is_urgent: boolean;
   published_at: string;
   expires_at: string | null;
 }
@@ -34,20 +32,19 @@ export interface Event {
   event_date: string;
   location: string | null;
   department_id: number | null;
-  faculty_id: number | null;
-  author_id: number;
+  user_id: number;
   author_name?: string;
   category?: string | null;
 }
 
 export interface Query {
   id: number;
-  student_id: number;
-  student_name?: string;
+  name: string | null;
+  roll_no: string | null;
+  email: string | null;
   subject: string;
   message: string;
   status: 'open' | 'in_progress' | 'resolved';
-  assigned_to: number | null;
   response: string | null;
   created_at: string;
   responded_at: string | null;

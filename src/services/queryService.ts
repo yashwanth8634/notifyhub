@@ -3,40 +3,37 @@ import { queryModel } from '@/models/queryModel';
 
 export const queryService = {
   async findAllForUser(user) {
-    if (user.role === 'student') {
-      return queryModel.findByStudentId(user.id);
-    } else if (user.role === 'super_admin') {
+    if (user.role === 'super_admin') {
       return queryModel.findAll();
-    } else if (user.role === 'hod') {
-      // Return queries specifically assigned to this HoD
-      return queryModel.findAll({ assigned_to: user.id });
     }
-    return [];
+    // All admin roles can view all queries
+    return queryModel.findAll();
   },
 
   async create(user, data) {
-    if (user.role !== 'student') {
-       throw { status: 403, message: 'Only students can submit queries', code: 'FORBIDDEN' };
-    }
-    return queryModel.create({ ...data, student_id: user.id });
+    return queryModel.create({
+      name: data.name || user.name,
+      roll_no: data.roll_no,
+      email: data.email || user.email,
+      subject: data.subject,
+      message: data.message,
+    });
   },
 
   async createAnonymous(data) {
-    return queryModel.createAnonymous(data);
+    return queryModel.create({
+      name: data.name,
+      roll_no: data.roll_no,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
+    });
   },
 
   async respond(user, id, responseData) {
     const existing = await queryModel.findById(id);
     if (!existing) throw { status: 404, message: 'Query not found', code: 'NOT_FOUND' };
 
-    if (user.role !== 'super_admin' && existing.assigned_to !== user.id) {
-       throw { status: 403, message: 'Not authorized to respond to this query', code: 'FORBIDDEN' };
-    }
-
-    const updated = await queryModel.respond(id, responseData);
-    
-    // SLA tracking logic could be added here (e.g., alert if > 6 hrs)
-    
-    return updated;
+    return queryModel.respond(id, responseData);
   }
 };

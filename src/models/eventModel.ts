@@ -5,7 +5,7 @@ export const eventModel = {
   async findAll({ limit = 50, offset = 0, category } = {}) {
     let sql = `SELECT e.*, u.name as author_name 
        FROM events e
-       LEFT JOIN users u ON e.author_id = u.id
+       LEFT JOIN users u ON e.user_id = u.id
        WHERE e.deleted_at IS NULL`;
     const params: any[] = [];
     let idx = 1;
@@ -30,11 +30,11 @@ export const eventModel = {
   },
 
   async create(data) {
-    const { title, description, event_date, location, department_id, faculty_id, author_id, category } = data;
+    const { title, description, event_date, location, department_id, user_id, category } = data;
     const result = await query(
-      `INSERT INTO events (title, description, event_date, location, department_id, faculty_id, author_id, category) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [title, description, event_date, location, department_id || null, faculty_id || null, author_id, category || null]
+      `INSERT INTO events (title, description, event_date, location, department_id, user_id, category) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [title, description, event_date, location, department_id || null, user_id, category || null]
     );
     return result.rows[0];
   },

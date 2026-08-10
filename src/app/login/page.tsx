@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Bell, Loader2 } from "lucide-react";
+import { Button } from "@/components/Button";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -36,9 +37,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate-fade-in font-display">
-      <div className="max-w-md w-full space-y-8 glass-nav p-10 rounded-3xl border border-white/5 shadow-2xl">
+      <div className="max-w-md w-full space-y-8 glass-nav p-10 rounded-md border border-white/5 shadow-2xl">
         <div>
-          <div className="mx-auto h-14 w-14 bg-purple-500/20 border border-purple-500/30 rounded-2xl flex items-center justify-center shadow-inner">
+          <div className="mx-auto h-14 w-14 bg-purple-500/20 border border-purple-500/30 rounded-md flex items-center justify-center shadow-inner">
             <Bell className="w-7 h-7 text-purple-400 fill-purple-400/20" />
           </div>
           <h2 className="mt-8 text-center text-3xl font-bold text-white tracking-tight">
@@ -51,7 +52,7 @@ export default function LoginPage() {
 
         <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-md">
               <p className="text-sm text-red-400">{error}</p>
             </div>
           )}
@@ -67,7 +68,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none relative block w-full px-4 py-3 border border-white/10 bg-[#151515]/70 backdrop-blur-md text-white placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all shadow-inner"
+                className="appearance-none relative block w-full px-4 py-3 border border-white/10 bg-[#151515]/70 backdrop-blur-md text-white placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all shadow-inner"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -83,7 +84,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none relative block w-full px-4 py-3 border border-white/10 bg-[#151515]/70 backdrop-blur-md text-white placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all shadow-inner"
+                className="appearance-none relative block w-full px-4 py-3 border border-white/10 bg-[#151515]/70 backdrop-blur-md text-white placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all shadow-inner"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -92,10 +93,12 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex items-center justify-center py-3 px-4 btn-gradient text-sm font-bold rounded-xl disabled:opacity-70 transition-all transform hover:scale-[1.02] gap-2"
+              variant="secondary"
+              size="lg"
+              className="group relative w-full transition-all transform hover:scale-[1.02] gap-2"
             >
               {loading ? (
                 <>
@@ -105,7 +108,7 @@ export default function LoginPage() {
               ) : (
                 "Sign in"
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

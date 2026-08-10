@@ -3,11 +3,13 @@ import { createQuery } from "@/actions/queries";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { MessageSquare, Send } from "lucide-react";
+import { Button } from "@/components/Button";
 
 export default function ContactPage() {
   const { isAuthenticated } = useAuth();
   const [name, setName] = useState("");
   const [rollNo, setRollNo] = useState("");
+  const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<
@@ -19,10 +21,11 @@ export default function ContactPage() {
 
     setStatus("submitting");
     try {
-      await createQuery({ name, roll_no: rollNo, subject, message });
+      await createQuery({ name, roll_no: rollNo, email, subject, message });
       setStatus("success");
       setName("");
       setRollNo("");
+      setEmail("");
       setSubject("");
       setMessage("");
     } catch (error) {
@@ -77,21 +80,19 @@ export default function ContactPage() {
         </div> */}
 
         {/* Query Form (Students Only) */}
-        <div className="glass-nav p-8 rounded-3xl border border-white/5">
+        <div className="glass-nav p-8 rounded-md border border-white/5">
           <h2 className="text-2xl font-bold mb-6 text-white">Submit a Query</h2>
-
-          
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {status === "success" && (
-              <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl text-sm leading-relaxed">
+              <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-md text-sm leading-relaxed">
                 Your query has been submitted successfully. A staff member will
                 review it shortly.
               </div>
             )}
 
             {status === "error" && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm">
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-md text-sm">
                 Failed to submit query. Please try again.
               </div>
             )}
@@ -108,7 +109,7 @@ export default function ContactPage() {
                   type="text"
                   id="name"
                   required
-                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
@@ -126,12 +127,30 @@ export default function ContactPage() {
                   type="text"
                   id="rollNo"
                   required
-                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
                   value={rollNo}
                   onChange={(e) => setRollNo(e.target.value)}
                   placeholder="Your Roll Number"
                 />
               </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                required
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@example.com"
+              />
             </div>
 
             <div>
@@ -145,7 +164,7 @@ export default function ContactPage() {
                 type="text"
                 id="subject"
                 required
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="What is your question about?"
@@ -163,21 +182,23 @@ export default function ContactPage() {
                 id="message"
                 required
                 rows={5}
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner resize-none"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner resize-none"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Provide details..."
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={status === "submitting"}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 btn-gradient rounded-xl font-semibold disabled:opacity-70 mt-2 transition-all transform hover:scale-[1.02]"
+              variant="secondary"
+              size="lg"
+              className="w-full mt-2 transform hover:scale-[1.02]"
             >
               <Send className="w-5 h-5" />
               {status === "submitting" ? "Submitting..." : "Submit Query"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

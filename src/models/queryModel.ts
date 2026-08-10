@@ -2,34 +2,19 @@
 import { query } from '@/config/db';
 
 export const queryModel = {
-  async findAll({ status, assigned_to } = {}) {
-    // Use LEFT JOIN so anonymous queries (student_id IS NULL) are included
-    let sql = `SELECT q.*, u.name as student_name
-               FROM queries q
-               LEFT JOIN users u ON q.student_id = u.id
-               WHERE 1=1`;
+  async findAll({ status } = {}) {
+    let sql = `SELECT * FROM queries WHERE 1=1`;
     const params = [];
     let paramIndex = 1;
 
     if (status) {
-      sql += ` AND q.status = $${paramIndex}`;
+      sql += ` AND status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
-    
-    if (assigned_to) {
-      sql += ` AND q.assigned_to = $${paramIndex}`;
-      params.push(assigned_to);
-      paramIndex++;
-    }
 
-    sql += ` ORDER BY q.created_at DESC`;
+    sql += ` ORDER BY created_at DESC`;
     const result = await query(sql, params);
-    return result.rows;
-  },
-
-  async findByStudentId(student_id) {
-    const result = await query('SELECT * FROM queries WHERE student_id = $1 ORDER BY created_at DESC', [student_id]);
     return result.rows;
   },
 
@@ -39,21 +24,11 @@ export const queryModel = {
   },
 
   async create(data) {
-    const { student_id, subject, message, assigned_to } = data;
+    const { name, roll_no, email, subject, message } = data;
     const result = await query(
-      `INSERT INTO queries (student_id, subject, message, assigned_to) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [student_id, subject, message, assigned_to || null]
-    );
-    return result.rows[0];
-  },
-
-  async createAnonymous(data) {
-    const { subject, message, assigned_to } = data;
-    const result = await query(
-      `INSERT INTO queries (student_id, subject, message, assigned_to) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [null, subject, message, assigned_to || null]
+      `INSERT INTO queries (name, roll_no, email, subject, message) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name || null, roll_no || null, email || null, subject, message]
     );
     return result.rows[0];
   },

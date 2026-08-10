@@ -6,7 +6,6 @@ export interface TokenPayload {
   id: number;
   role: string;
   departmentId?: number;
-  facultyId?: number;
 }
 
 import { cookies } from 'next/headers';

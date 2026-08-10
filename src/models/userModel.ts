@@ -13,16 +13,16 @@ export const userModel = {
   },
 
   async findAll() {
-    const result = await query('SELECT id, name, email, role, department_id, faculty_id, is_active, created_at FROM users ORDER BY created_at DESC');
+    const result = await query('SELECT id, name, email, role, department_id, is_active, created_at FROM users ORDER BY created_at DESC');
     return result.rows;
   },
 
   async create(data) {
-    const { name, email, password_hash, role, department_id, faculty_id } = data;
+    const { name, email, password_hash, role, department_id } = data;
     const result = await query(
-      `INSERT INTO users (name, email, password_hash, role, department_id, faculty_id) 
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, role`,
-      [name, email, password_hash, role, department_id || null, faculty_id || null]
+      `INSERT INTO users (name, email, password_hash, role, department_id) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role`,
+      [name, email, password_hash, role, department_id || null]
     );
     return result.rows[0];
   },
@@ -33,16 +33,15 @@ export const userModel = {
   },
 
   async update(id, data) {
-    const { name, role, department_id, faculty_id, is_active } = data;
+    const { name, role, department_id, is_active } = data;
     const result = await query(
       `UPDATE users 
        SET name = COALESCE($1, name), 
            role = COALESCE($2, role), 
            department_id = $3, 
-           faculty_id = $4, 
-           is_active = COALESCE($5, is_active)
-       WHERE id = $6 RETURNING id, name, email, role`,
-      [name, role, department_id, faculty_id, is_active, id]
+           is_active = COALESCE($4, is_active)
+       WHERE id = $5 RETURNING id, name, email, role`,
+      [name, role, department_id, is_active, id]
     );
     return result.rows[0];
   },
@@ -58,7 +57,6 @@ export const userModel = {
   },
 
   async delete(id) {
-    // permanently remove a user
     const result = await query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
     return result.rows[0];
   },

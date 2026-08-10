@@ -2,7 +2,6 @@
 
 import { userService } from '@/services/userService';
 import { userModel } from '@/models/userModel';
-import { auditModel } from '@/models/auditModel';
 import { getSession } from '@/config/auth';
 
 function requireRole(user: any, roles: string[]) {
@@ -53,6 +52,5 @@ export async function deleteUser(id: number) {
   requireRole(user, ['super_admin']);
   const deleted = await userModel.delete(id);
   if (!deleted) throw new Error('NOT_FOUND');
-  await auditModel.log(user!.id, 'delete', 'user', id);
   return { success: true };
 }
