@@ -16,8 +16,10 @@ export default function AlertsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    department: "",
     body: "",
-    is_alert: true,
+    category: "general",
+    is_urgent: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,7 +54,7 @@ export default function AlertsPage() {
       const created = await createAlert(formData);
       setAlerts([created, ...alerts]);
       setIsModalOpen(false);
-      setFormData({ title: "", body: "", is_alert: true });
+      setFormData({ title: "", department: "", body: "", category: "general", is_urgent: true });
     } catch (error) {
       console.error("Failed to create alert:", error);
       alert("Failed to create alert");
@@ -139,6 +141,20 @@ export default function AlertsPage() {
                 setFormData({ ...formData, title: e.target.value })
               }
               placeholder="URGENT: Title"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-red-300 mb-2">
+              Department
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-3 bg-red-950/30 border border-red-500/30 rounded-md text-red-200 placeholder-red-500/50 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              placeholder="Enter department name"
             />
           </div>
           <div>

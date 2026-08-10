@@ -63,5 +63,17 @@ export const userModel = {
 
   async updatePassword(id, hash) {
     await query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, id]);
+  },
+
+  async updateProfile(id, data) {
+    const { name, email } = data;
+    const result = await query(
+      `UPDATE users 
+       SET name = COALESCE($1, name), 
+           email = COALESCE($2, email)
+       WHERE id = $3 RETURNING id, name, email, role`,
+      [name, email, id]
+    );
+    return result.rows[0];
   }
 };

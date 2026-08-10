@@ -23,6 +23,13 @@ export function Navbar() {
 
   if (user?.role === "super_admin") {
     navLinks.push({ name: "Dashboard", path: "/dashboard" });
+  } else if (
+    user?.role === "faculty" ||
+    user?.role === "hod" ||
+    user?.role === "dean" ||
+    user?.role === "principal"
+  ) {
+    navLinks.push({ name: "Profile", path: "/profile" });
   } else {
     navLinks.push({ name: "Contact", path: "/contact" });
   }

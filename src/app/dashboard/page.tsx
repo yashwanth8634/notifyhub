@@ -518,6 +518,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex flex-wrap gap-4 text-xs text-gray-500 mb-3">
                       <span>
+                        Ticket_Id:{" "}
+                        <span className="text-gray-400">
+                          {q.id || "—"}
+                        </span>
+                      </span>
+                      <span>
                         Name:{" "}
                         <span className="text-gray-400">
                           {q.name || "—"}
@@ -540,12 +546,6 @@ export default function DashboardPage() {
                       {q.message}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>
-                        From:{" "}
-                        <span className="text-gray-400">
-                          {q.name || "Anonymous"}
-                        </span>
-                      </span>
                       <span>
                         {format(new Date(q.created_at), "MMM d, yyyy · h:mm a")}
                       </span>

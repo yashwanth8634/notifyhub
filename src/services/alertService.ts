@@ -3,11 +3,11 @@ import { announcementService } from './announcementService';
 
 export const alertService = {
   async findAll(filters) {
-    return announcementService.findAll({ ...filters, is_alert: true });
+    return announcementService.findAll({ ...filters, is_urgent: true });
   },
 
   async create(user, data) {
-    return announcementService.create(user, { ...data, is_alert: true });
+    return announcementService.create(user, { ...data, is_urgent: true });
   },
 
   async update(user, id, data) {

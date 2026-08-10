@@ -1,6 +1,6 @@
 import type { Announcement } from "../types";
 import { Clock, AlertCircle, Edit, Trash2, ChevronDown } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface NoticeCardProps {
   notice: Announcement;
@@ -18,9 +18,6 @@ export function NoticeCard({
   canDelete,
 }: NoticeCardProps) {
   const isAlert = notice.is_alert;
-  const isExpired = notice.expires_at
-    ? new Date(notice.expires_at) < new Date()
-    : false;
 
   return (
     <div
@@ -29,17 +26,12 @@ export function NoticeCard({
       }`}
     >
       {isAlert && (
-        <div className="bg-red-500/20 text-red-300 px-5 py-3 flex items-center justify-between text-sm font-medium border-b border-red-500/30">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
+        <div className="flex items-center gap-2 px-6 py-3 bg-red-500/10 border-b border-red-500/20">
+          <AlertCircle className="w-4 h-4 text-red-400" />
+
+          <span className="text-sm font-semibold text-red-400">
             URGENT ALERT
-          </div>
-          {notice.expires_at && !isExpired && (
-            <span>
-              Expires in {formatDistanceToNow(new Date(notice.expires_at))}
-            </span>
-          )}
-          {isExpired && <span>Expired</span>}
+          </span>
         </div>
       )}
 
@@ -58,6 +50,7 @@ export function NoticeCard({
                 <Edit className="w-4 h-4" />
               </button>
             )}
+
             {canDelete && (
               <button
                 onClick={() => onDelete?.(notice.id)}
@@ -72,15 +65,19 @@ export function NoticeCard({
         <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-400 mb-5">
           <div className="flex items-center gap-1.5">
             <Clock className="w-4 h-4" />
+
             {format(new Date(notice.published_at), "MMM d, yyyy h:mm a")}
           </div>
 
-          {notice.category && (
+
+
+          {notice.department && (
             <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 font-medium">
-              {notice.category}
+              {notice.department}
             </span>
           )}
 
+          
           <div className="text-gray-400">
             Published by{" "}
             <span className="font-medium text-gray-200">
@@ -92,8 +89,10 @@ export function NoticeCard({
         <details className="group rounded-xl border border-white/10 bg-white/5 overflow-hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium text-gray-200 hover:bg-white/5 transition-colors">
             <span>View message</span>
+
             <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
           </summary>
+
           <div className="border-t border-white/10 px-4 py-4 text-gray-300 whitespace-pre-wrap leading-relaxed">
             {notice.body}
           </div>

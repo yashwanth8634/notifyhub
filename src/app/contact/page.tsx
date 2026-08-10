@@ -109,7 +109,7 @@ export default function ContactPage() {
                   type="text"
                   id="name"
                   required
-                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all shadow-inner"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
@@ -127,7 +127,7 @@ export default function ContactPage() {
                   type="text"
                   id="rollNo"
                   required
-                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                  className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all shadow-inner"
                   value={rollNo}
                   onChange={(e) => setRollNo(e.target.value)}
                   placeholder="Your Roll Number"
@@ -146,7 +146,7 @@ export default function ContactPage() {
                 type="email"
                 id="email"
                 required
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all shadow-inner"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your.email@example.com"
@@ -164,7 +164,7 @@ export default function ContactPage() {
                 type="text"
                 id="subject"
                 required
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all shadow-inner"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="What is your question about?"
@@ -182,7 +182,7 @@ export default function ContactPage() {
                 id="message"
                 required
                 rows={5}
-                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all shadow-inner resize-none"
+                className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all shadow-inner resize-none"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Provide details..."
