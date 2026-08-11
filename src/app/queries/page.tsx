@@ -67,9 +67,7 @@ export default function QueryStatusPage() {
                     </span>
                     <span>
                       Mail:{" "}
-                      <span className="text-gray-300">
-                        {q.email || "—"}
-                      </span>
+                      <span className="text-gray-300">{q.email || "—"}</span>
                     </span>
                   </div>
                 </div>
@@ -78,9 +76,7 @@ export default function QueryStatusPage() {
                     className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide border ${
                       q.status === "resolved"
                         ? "bg-green-500/10 text-green-400 border-green-500/20"
-                        : q.status === "in_progress"
-                          ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                          : "bg-white/10 text-gray-300 border-white/10"
+                        : "bg-white/10 text-gray-300 border-white/10"
                     }`}
                   >
                     {q.status.replace("_", " ").toUpperCase()}
