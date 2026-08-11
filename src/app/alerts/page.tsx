@@ -19,7 +19,7 @@ export default function AlertsPage() {
     department: "",
     body: "",
     category: "general",
-    is_urgent: true,
+    is_alert: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,7 +54,13 @@ export default function AlertsPage() {
       const created = await createAlert(formData);
       setAlerts([created, ...alerts]);
       setIsModalOpen(false);
-      setFormData({ title: "", department: "", body: "", category: "general", is_urgent: true });
+      setFormData({
+        title: "",
+        department: "",
+        body: "",
+        category: "general",
+        is_alert: true,
+      });
     } catch (error) {
       console.error("Failed to create alert:", error);
       alert("Failed to create alert");

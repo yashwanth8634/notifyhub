@@ -21,6 +21,7 @@ export default function EventsPage() {
     description: "",
     event_date: "",
     location: "",
+    category: "Placements",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,7 +56,13 @@ export default function EventsPage() {
       const created = await createEvent(formData);
       setEvents([created, ...events]);
       setIsModalOpen(false);
-      setFormData({ title: "", description: "", event_date: "", location: "" });
+      setFormData({
+        title: "",
+        description: "",
+        event_date: "",
+        location: "",
+        category: "Placements",
+      });
     } catch (error) {
       console.error("Failed to create event:", error);
       alert("Failed to create event");
@@ -148,7 +155,7 @@ export default function EventsPage() {
           <p className="text-gray-400 text-lg">No upcoming events scheduled.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-2">
           {filtered.map((event) => (
             <div
               key={event.id}
@@ -264,6 +271,30 @@ export default function EventsPage() {
                 placeholder="Room / Link"
               />
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Category
+            </label>
+
+            <select
+              required
+              value={formData.category}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  category: e.target.value,
+                })
+              }
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            >
+              <option value="Placements">Placements</option>
+              <option value="Sports">Sports</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Ceremony">Ceremony</option>
+              <option value="Fest">Fest</option>
+              <option value="Social">Social</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
