@@ -1,13 +1,43 @@
 "use server";
 
-import { query } from '@/config/db';
+import { query } from "@/config/db";
 
 export async function getStats() {
-  const noticesRes = await query('SELECT COUNT(*) FROM announcements WHERE deleted_at IS NULL');
-  const eventsRes = await query('SELECT COUNT(*) FROM events WHERE deleted_at IS NULL AND event_date > CURRENT_TIMESTAMP');
-  
+  const announcementCount = await query(
+    "SELECT COUNT(*) FROM announcements"
+  );
+
+  const alertCount = await query(
+    "SELECT COUNT(*) FROM announcements WHERE is_alert = true"
+  );
+
+  const eventsCount = await query(
+    "SELECT COUNT(*) FROM events WHERE event_date > CURRENT_TIMESTAMP"
+  );
+
+  const departmentsCount = await query(
+    "SELECT COUNT(*) FROM departments"
+  );
+
   return {
-    totalNotices: parseInt(noticesRes.rows[0].count),
-    upcomingEvents: parseInt(eventsRes.rows[0].count)
+    totalNotices: parseInt(
+      announcementCount.rows[0].count,
+      10
+    ),
+
+    urgentAlerts: parseInt(
+      alertCount.rows[0].count,
+      10
+    ),
+
+    upcomingEvents: parseInt(
+      eventsCount.rows[0].count,
+      10
+    ),
+
+    departments: parseInt(
+      departmentsCount.rows[0].count,
+      10
+    ),
   };
 }
