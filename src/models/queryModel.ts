@@ -1,11 +1,5 @@
 import { query } from '@/config/db';
-import { Query, QueryStatus } from '@/types';
-
-interface QueryFilters {
-  status?: QueryStatus;
-  limit?: number;
-  offset?: number;
-}
+import { Query, QueryStatus, QueryFilters } from '@/types';
 
 interface QueryCreateData {
   name: string | null;

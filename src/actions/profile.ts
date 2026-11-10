@@ -9,9 +9,9 @@ import { logger } from '@/lib/logger';
 
 export async function getProfile() {
   const user = await getSession();
-  requireAuth(user);
+  const authUser = requireAuth(user);
   
-  const dbUser = await userModel.findById(user.id);
+  const dbUser = await userModel.findById(authUser.id);
   if (!dbUser) throw new AuthError('NOT_FOUND', 404, 'User not found');
   
   return {
@@ -23,7 +23,7 @@ export async function getProfile() {
 
 export async function updateProfile(data: unknown) {
   const user = await getSession();
-  requireAuth(user);
+  const authUser = requireAuth(user);
   
   const validation = profileUpdateSchema.safeParse(data);
   if (!validation.success) {
@@ -33,23 +33,23 @@ export async function updateProfile(data: unknown) {
   // Check if they are updating password
   if (validation.data.password) {
     const hash = await authService.hashPassword(validation.data.password);
-    await userModel.updatePassword(user.id, hash);
+    await userModel.updatePassword(authUser.id, hash);
     
     logger.info('Password updated', {
       action: 'profile_password_update',
-      userId: user.id,
+      userId: authUser.id,
     });
   }
 
   // Update name and email if provided
-  await userModel.updateProfile(user.id, {
+  await userModel.updateProfile(authUser.id, {
     name: validation.data.name ?? null,
     email: validation.data.email ?? null,
   });
 
   logger.info('Profile updated', {
     action: 'profile_update',
-    userId: user.id,
+    userId: authUser.id,
     metadata: { fields: Object.keys(validation.data).filter(k => validation.data[k as keyof typeof validation.data] !== undefined) },
   });
 

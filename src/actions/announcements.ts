@@ -7,7 +7,7 @@ import { announcementSchema, announcementFiltersSchema } from '@/lib/validation'
 import { logger } from '@/lib/logger';
 import { AnnouncementFiltersInput } from '@/lib/validation';
 
-export async function getAnnouncements(filters: AnnouncementFiltersInput = {}) {
+export async function getAnnouncements(filters: Partial<AnnouncementFiltersInput> = {}) {
   const validation = announcementFiltersSchema.safeParse(filters);
   if (!validation.success) {
     throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
@@ -17,7 +17,7 @@ export async function getAnnouncements(filters: AnnouncementFiltersInput = {}) {
 
 export async function createAnnouncement(data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = announcementSchema.safeParse(data);
   if (!validation.success) {
@@ -30,12 +30,12 @@ export async function createAnnouncement(data: unknown) {
     metadata: { isAlert: validation.data.is_alert },
   });
 
-  return announcementService.create(user, validation.data);
+  return announcementService.create(authUser, validation.data);
 }
 
 export async function updateAnnouncement(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = announcementSchema.partial().safeParse(data);
   if (!validation.success) {
@@ -48,12 +48,12 @@ export async function updateAnnouncement(id: number, data: unknown) {
     metadata: { announcementId: id },
   });
 
-  return announcementService.update(user, id, validation.data);
+  return announcementService.update(authUser, id, validation.data);
 }
 
 export async function deleteAnnouncement(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const authUser = requireRole(user, ['super_admin']);
   
   logger.info('Deleting announcement', {
     action: 'announcement_delete',
@@ -61,5 +61,5 @@ export async function deleteAnnouncement(id: number) {
     metadata: { announcementId: id },
   });
 
-  return announcementService.delete(user, id);
+  return announcementService.delete(authUser, id);
 }

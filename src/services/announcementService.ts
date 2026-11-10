@@ -32,6 +32,8 @@ export const announcementService = {
   async create(user: AuthUser, data: AnnouncementCreateData): Promise<Announcement> {
     const announcement = await announcementModel.create({
       ...data,
+      category: data.category ?? null,
+      department: data.department ?? null,
       user_id: user.id,
     });
 

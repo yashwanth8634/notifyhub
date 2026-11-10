@@ -7,7 +7,7 @@ import { eventSchema, eventFiltersSchema } from '@/lib/validation';
 import { logger } from '@/lib/logger';
 import { EventFiltersInput } from '@/lib/validation';
 
-export async function getEvents(filters: EventFiltersInput = {}) {
+export async function getEvents(filters: Partial<EventFiltersInput> = {}) {
   const validation = eventFiltersSchema.safeParse(filters);
   if (!validation.success) {
     throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
@@ -17,7 +17,7 @@ export async function getEvents(filters: EventFiltersInput = {}) {
 
 export async function createEvent(data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = eventSchema.safeParse(data);
   if (!validation.success) {
@@ -29,12 +29,12 @@ export async function createEvent(data: unknown) {
     userId: user?.id,
   });
 
-  return eventService.create(user, validation.data);
+  return eventService.create(authUser, validation.data);
 }
 
 export async function updateEvent(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = eventSchema.partial().safeParse(data);
   if (!validation.success) {
@@ -47,12 +47,12 @@ export async function updateEvent(id: number, data: unknown) {
     metadata: { eventId: id },
   });
 
-  return eventService.update(user, id, validation.data);
+  return eventService.update(authUser, id, validation.data);
 }
 
 export async function deleteEvent(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const authUser = requireRole(user, ['super_admin']);
   
   logger.info('Deleting event', {
     action: 'event_delete',
@@ -60,5 +60,5 @@ export async function deleteEvent(id: number) {
     metadata: { eventId: id },
   });
 
-  return eventService.delete(user, id);
+  return eventService.delete(authUser, id);
 }

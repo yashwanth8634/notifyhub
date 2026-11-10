@@ -1,6 +1,6 @@
 import { eventModel } from '@/models/eventModel';
 import { AuthError } from '@/lib/auth';
-import { User, Event, EventFilters } from '@/types';
+import { Event, EventFilters } from '@/types';
 
 interface EventCreateData {
   title: string;
@@ -31,6 +31,8 @@ export const eventService = {
   async create(user: AuthUser, data: EventCreateData): Promise<Event> {
     return eventModel.create({
       ...data,
+      location: data.location ?? null,
+      category: data.category ?? null,
       user_id: user.id,
     });
   },

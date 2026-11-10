@@ -6,7 +6,7 @@ import { Announcement } from '@/types';
 
 export async function GET() {
   try {
-    const announcements = await getAnnouncements({ limit: 12 });
+    const announcements = await getAnnouncements({ limit: 12, offset: 0 });
     const stats = await getStats();
 
     const ticker = announcements.map((a: Announcement) => ({ 

@@ -1,11 +1,7 @@
 import { query } from '@/config/db';
 import { Event } from '@/types';
 
-interface EventFilters {
-  limit?: number;
-  offset?: number;
-  category?: string;
-}
+import type { EventFilters } from '@/types';
 
 interface EventCreateData {
   title: string;

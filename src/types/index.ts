@@ -10,6 +10,10 @@ export interface User {
   created_at: string;
 }
 
+export interface UserRecord extends User {
+  password_hash: string;
+}
+
 export interface Announcement {
   id: number;
   title: string;
@@ -22,6 +26,13 @@ export interface Announcement {
   is_alert: boolean;
   created_at: string;
   deleted_at: string | null;
+}
+
+export interface AnnouncementFilters {
+  is_alert?: boolean;
+  department?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface Event {
@@ -38,7 +49,19 @@ export interface Event {
   deleted_at: string | null;
 }
 
+export interface EventFilters {
+  limit?: number;
+  offset?: number;
+  category?: string;
+}
+
 export type QueryStatus = 'open' | 'in_progress' | 'resolved';
+
+export interface QueryFilters {
+  status?: QueryStatus;
+  limit?: number;
+  offset?: number;
+}
 
 export interface Query {
   id: number;

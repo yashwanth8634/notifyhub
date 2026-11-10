@@ -52,8 +52,8 @@ export const logger = {
   },
   
   query: (sql: string, params: any[], durationMs: number, context?: LogContext) => {
+    const truncatedSql = sql.length > 200 ? sql.slice(0, 200) + '...' : sql;
     if (shouldLog('debug')) {
-      const truncatedSql = sql.length > 200 ? sql.slice(0, 200) + '...' : sql;
       logger.debug(`Query executed`, {
         ...context,
         action: 'db_query',

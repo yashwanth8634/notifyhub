@@ -23,8 +23,8 @@ export default function LoginPage() {
 
     try {
       const data = await loginAction(email, password);
-      if (!data.success) {
-        throw new Error(data.error);
+      if (!data.success || !data.user) {
+        throw new Error(data.error || "Failed to login");
       }
       login(data.user);
       navigate.replace(from);

@@ -7,7 +7,7 @@ import { announcementSchema, announcementFiltersSchema } from '@/lib/validation'
 import { logger } from '@/lib/logger';
 import { AnnouncementFiltersInput } from '@/lib/validation';
 
-export async function getAlerts(filters: AnnouncementFiltersInput = {}) {
+export async function getAlerts(filters: Partial<AnnouncementFiltersInput> = {}) {
   const validation = announcementFiltersSchema.safeParse(filters);
   if (!validation.success) {
     throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
@@ -17,7 +17,7 @@ export async function getAlerts(filters: AnnouncementFiltersInput = {}) {
 
 export async function createAlert(data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = announcementSchema.safeParse(data);
   if (!validation.success) {
@@ -29,12 +29,12 @@ export async function createAlert(data: unknown) {
     userId: user?.id,
   });
 
-  return alertService.create(user, validation.data);
+  return alertService.create(authUser, validation.data);
 }
 
 export async function updateAlert(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, PUBLISHING_ROLES);
   
   const validation = announcementSchema.partial().safeParse(data);
   if (!validation.success) {
@@ -47,12 +47,12 @@ export async function updateAlert(id: number, data: unknown) {
     metadata: { alertId: id },
   });
 
-  return alertService.update(user, id, validation.data);
+  return alertService.update(authUser, id, validation.data);
 }
 
 export async function deleteAlert(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const authUser = requireRole(user, ['super_admin']);
   
   logger.info('Deleting alert', {
     action: 'alert_delete',
@@ -60,5 +60,5 @@ export async function deleteAlert(id: number) {
     metadata: { alertId: id },
   });
 
-  return alertService.delete(user, id);
+  return alertService.delete(authUser, id);
 }

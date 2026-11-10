@@ -1,12 +1,5 @@
 import { query } from '@/config/db';
-import { Announcement } from '@/types';
-
-interface AnnouncementFilters {
-  is_alert?: boolean;
-  department?: string;
-  limit?: number;
-  offset?: number;
-}
+import { Announcement, AnnouncementFilters } from '@/types';
 
 interface AnnouncementCreateData {
   title: string;

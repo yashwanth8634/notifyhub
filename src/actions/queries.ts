@@ -8,7 +8,7 @@ import { querySchema, queryFiltersSchema, respondToQuerySchema } from '@/lib/val
 import { logger } from '@/lib/logger';
 import { QueryFiltersInput } from '@/lib/validation';
 
-export async function getQueries(filters: QueryFiltersInput = {}) {
+export async function getQueries(filters: Partial<QueryFiltersInput> = {}) {
   const user = await getSession();
   if (!user) throw new AuthError('UNAUTHORIZED', 401, 'Authentication required');
   
@@ -35,14 +35,14 @@ export async function createQuery(data: unknown) {
     return queryService.createAnonymous(validation.data);
   }
 
-  requireRole(user, ['student']);
+  const authUser = requireRole(user, ['student']);
 
   logger.info('Creating query', {
     action: 'query_create',
     userId: user?.id,
   });
 
-  return queryService.create(user, validation.data);
+  return queryService.create(authUser, validation.data);
 }
 
 export async function getQueryById(id: string) {
@@ -55,7 +55,7 @@ export async function getQueryById(id: string) {
 
 export async function respondToQuery(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, ['super_admin', 'hod']);
+  const authUser = requireRole(user, ['super_admin', 'hod']);
   
   const validation = respondToQuerySchema.safeParse(data);
   if (!validation.success) {
@@ -68,5 +68,5 @@ export async function respondToQuery(id: number, data: unknown) {
     metadata: { queryId: id },
   });
 
-  return queryService.respond(user, id, validation.data);
+  return queryService.respond(authUser, id, validation.data);
 }

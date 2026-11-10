@@ -1,5 +1,5 @@
 import { query } from '@/config/db';
-import { User, Role } from '@/types';
+import { User, UserRecord, Role } from '@/types';
 
 interface UserCreateData {
   name: string;
@@ -22,7 +22,7 @@ interface UserProfileUpdateData {
 }
 
 export const userModel = {
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<UserRecord | null> {
     const result = await query('SELECT * FROM users WHERE email = $1', [email]);
     return result.rows[0] ?? null;
   },
@@ -49,7 +49,7 @@ export const userModel = {
     return result.rows[0];
   },
 
-  async findByRole(role: Role): Promise<User | null> {
+  async findByRole(role: Role): Promise<UserRecord | null> {
     const result = await query('SELECT * FROM users WHERE role = $1 AND is_active = true LIMIT 1', [role]);
     return result.rows[0] ?? null;
   },

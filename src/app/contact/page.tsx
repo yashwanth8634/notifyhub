@@ -42,7 +42,7 @@ export default function ContactPage() {
         message,
       });
 
-      const id = created?.id ?? created?.query_id ?? created?.ticket_id;
+      const id = created?.id;
 
       setTrackingId(String(id));
 
@@ -299,7 +299,7 @@ export default function ContactPage() {
 
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        trackedQuery.status === "closed"
+                        trackedQuery.status === "resolved"
                           ? "bg-green-500/10 text-green-400"
                           : "bg-yellow-500/10 text-yellow-400"
                       }`}
@@ -308,7 +308,7 @@ export default function ContactPage() {
                     </span>
                   </div>
 
-                  {trackedQuery.status === "closed" ? (
+                  {trackedQuery.status === "resolved" ? (
                     <div>
                       <p className="text-sm text-gray-400 mb-2">Response</p>
 

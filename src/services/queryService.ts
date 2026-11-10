@@ -5,8 +5,8 @@ import { Query, QueryFilters, QueryStatus } from '@/types';
 interface AuthUser {
   id: number;
   role: string;
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
 }
 
 interface QueryCreateData {
@@ -30,9 +30,9 @@ export const queryService = {
 
   async create(user: AuthUser, data: QueryCreateData): Promise<Query> {
     return queryModel.create({
-      name: data.name ?? user.name,
+      name: data.name ?? user.name ?? null,
       roll_no: data.roll_no ?? null,
-      email: data.email ?? user.email,
+      email: data.email ?? user.email ?? null,
       subject: data.subject,
       message: data.message,
     });
@@ -52,6 +52,9 @@ export const queryService = {
     const existing = await queryModel.findById(id);
     if (!existing) throw new AuthError('NOT_FOUND', 404, 'Query not found');
 
-    return queryModel.respond(id, responseData);
+    return queryModel.respond(id, {
+      response: responseData.response,
+      status: responseData.status ?? null,
+    });
   },
 };
