@@ -2,6 +2,7 @@
 import {
   getAnnouncements,
   createAnnouncement,
+  updateAnnouncement,
   deleteAnnouncement,
 } from "@/actions/announcements";
 import { useState, useEffect } from "react";
@@ -30,6 +31,7 @@ export default function AnnouncementsPage() {
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     department: "",
@@ -66,9 +68,19 @@ export default function AnnouncementsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const created = await createAnnouncement(formData);
-      setAnnouncements([created, ...announcements]);
+      if (editingId === null) {
+        const created = await createAnnouncement(formData);
+        setAnnouncements((prev) => [created, ...prev]);
+      } else {
+        const updated = await updateAnnouncement(editingId, formData);
+        setAnnouncements((prev) =>
+          prev.map((item) =>
+            item.id === editingId ? { ...item, ...updated } : item,
+          ),
+        );
+      }
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData({ title: "", department: "", body: "", category: "general" });
     } catch (error) {
       console.error("Failed to create announcement:", error);
@@ -76,6 +88,17 @@ export default function AnnouncementsPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEdit = (notice: Announcement) => {
+    setEditingId(notice.id);
+    setFormData({
+      title: notice.title,
+      department: notice.department || "",
+      body: notice.body,
+      category: notice.category || "general",
+    });
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -171,11 +194,9 @@ export default function AnnouncementsPage() {
             <NoticeCard
               key={notice.id}
               notice={notice}
-              canEdit={
-                canPublish &&
-                (user?.role === "super_admin" || user?.id === notice.user_id)
-              }
+              canEdit={canDelete}
               canDelete={canDelete}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))}
@@ -185,7 +206,7 @@ export default function AnnouncementsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="New Announcement"
+        title={editingId === null ? "New Announcement" : "Edit Announcement"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
@@ -263,7 +284,13 @@ export default function AnnouncementsPage() {
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : null}
-              {isSubmitting ? "Publishing..." : "Publish"}
+              {isSubmitting
+                ? editingId === null
+                  ? "Publishing..."
+                  : "Saving..."
+                : editingId === null
+                  ? "Publish"
+                  : "Save Changes"}
             </Button>
           </div>
         </form>

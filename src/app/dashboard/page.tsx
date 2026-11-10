@@ -1,6 +1,7 @@
 "use client";
 import {
   getUsers,
+  getDepartments,
   createUser,
   updateUser,
   deactivateUser,
@@ -10,7 +11,7 @@ import {
 } from "@/actions/users";
 import { getQueries, respondToQuery } from "@/actions/queries";
 import { useState, useEffect } from "react";
-import type { User, Query, Role } from "@/types";
+import type { Department, User, Query, Role } from "@/types";
 import { RoleBadge } from "@/components/RoleBadge";
 import RoleSelect from "../../components/RoleSelect";
 import { Modal } from "@/components/Modal";
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { useAuth } from "@/context/AuthContext";
 
 type DashboardTab = "accounts" | "queries";
 
@@ -41,18 +43,26 @@ const EMPTY_USER_FORM = {
   email: "",
   password: "",
   role: "principal" as Role,
+  department_id: "",
 };
 
 export default function DashboardPage() {
+  const { user: currentUser } = useAuth();
+  const canManageUsers = currentUser?.role === "super_admin";
+  const canCreateUsers = ["super_admin", "principal", "dean", "hod"].includes(
+    currentUser?.role || "",
+  );
   const [activeTab, setActiveTab] = useState<DashboardTab>("accounts");
 
   // --- Users state ---
   const [users, setUsers] = useState<User[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [createUserForm, setCreateUserForm] = useState(EMPTY_USER_FORM);
+  const [createUserError, setCreateUserError] = useState("");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
@@ -61,7 +71,8 @@ export default function DashboardPage() {
     name: string;
     email: string;
     role: Role;
-  }>({ id: 0, name: "", email: "", role: "student" });
+    department_id: string;
+  }>({ id: 0, name: "", email: "", role: "student", department_id: "" });
   const [isEditingUser, setIsEditingUser] = useState(false);
 
   // --- Queries state ---
@@ -80,8 +91,12 @@ export default function DashboardPage() {
   // --- User API calls ---
   const fetchUsers = async () => {
     try {
-      const data = await getUsers();
-      setUsers(data);
+      const [usersData, departmentsData] = await Promise.all([
+        getUsers(),
+        getDepartments(),
+      ]);
+      setUsers(usersData);
+      setDepartments(departmentsData);
     } catch (error) {
       console.error("Failed to fetch users:", error);
     } finally {
@@ -107,10 +122,15 @@ export default function DashboardPage() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreateUserError("");
     setIsCreatingUser(true);
     try {
-      const created = await createUser(createUserForm);
-      setUsers((prev) => [created, ...prev]);
+      const result = await createUser(createUserForm);
+      if (!result.success) {
+        setCreateUserError(result.error);
+        return;
+      }
+      setUsers((prev) => [result.user, ...prev]);
       setIsCreateUserOpen(false);
       setCreateUserForm(EMPTY_USER_FORM);
     } catch (error) {
@@ -123,7 +143,9 @@ export default function DashboardPage() {
         window.location.reload();
         return;
       }
-      alert("Failed to create user");
+      setCreateUserError(
+        error instanceof Error ? error.message : "Failed to create user",
+      );
     } finally {
       setIsCreatingUser(false);
     }
@@ -135,6 +157,7 @@ export default function DashboardPage() {
       name: user.name,
       email: user.email,
       role: user.role,
+      department_id: user.department_id ? String(user.department_id) : "",
     });
     setIsEditUserOpen(true);
   };
@@ -227,8 +250,10 @@ export default function DashboardPage() {
   const hasPrincipal = users.some((u) => u.role === "principal");
   const createRoles = ROLES.filter(
     (r) =>
-      r !== "student" &&
-      r !== "super_admin" &&
+      (currentUser?.role === "super_admin" ||
+        (currentUser?.role === "principal" && ["dean", "hod"].includes(r)) ||
+        (currentUser?.role === "dean" && ["hod", "faculty"].includes(r)) ||
+        (currentUser?.role === "hod" && r === "faculty")) &&
       !(r === "principal" && hasPrincipal),
   );
   const editRoles = ROLES.filter(
@@ -345,13 +370,26 @@ export default function DashboardPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <button
-                onClick={() => setIsCreateUserOpen(true)}
+              {canCreateUsers && <button
+                onClick={() => {
+                  setCreateUserError("");
+                  setCreateUserForm({
+                    ...EMPTY_USER_FORM,
+                    role: createRoles[0] || EMPTY_USER_FORM.role,
+                    department_id:
+                      currentUser?.role === "hod" &&
+                      currentUser.department_id !== null &&
+                      currentUser.department_id !== undefined
+                        ? String(currentUser.department_id)
+                        : "",
+                  });
+                  setIsCreateUserOpen(true);
+                }}
                 className="bg-gray-700 tracking-tight flex items-center gap-2 px-4 py-2 rounded-md font-medium whitespace-nowrap"
               >
                 <UserPlus className="w-5 h-5" />
                 Add User
-              </button>
+              </button>}
             </div>
           </div>
 
@@ -370,6 +408,12 @@ export default function DashboardPage() {
                     className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
                   >
                     Role
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
+                  >
+                    Department
                   </th>
                   <th
                     scope="col"
@@ -394,14 +438,14 @@ export default function DashboardPage() {
               <tbody className="divide-y divide-white/5">
                 {usersLoading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-16">
+                    <td colSpan={6} className="px-6 py-16">
                       <LoadingScreen />
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-12 text-center text-gray-400 text-lg"
                     >
                       No users found
@@ -424,6 +468,9 @@ export default function DashboardPage() {
                       <td className="px-6 py-5 whitespace-nowrap">
                         <RoleBadge role={u.role} />
                       </td>
+                      <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-300">
+                        {u.department_name || "—"}
+                      </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <span
                           className={`px-3 py-1 inline-flex text-xs font-bold tracking-wide rounded-md border ${u.is_active ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}
@@ -435,13 +482,17 @@ export default function DashboardPage() {
                         {format(new Date(u.created_at), "MMM d, yyyy")}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-bold">
-                        <button
-                          onClick={() => openEditUser(u)}
-                          className="text-purple-400 hover:text-purple-300 mr-3 transition-colors cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        {u.role === "super_admin" ? (
+                        {canManageUsers && (
+                          <>
+                            <button
+                              onClick={() => openEditUser(u)}
+                              className="text-purple-400 hover:text-purple-300 mr-3 transition-colors cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                          </>
+                        )}
+                        {canManageUsers && u.role === "super_admin" ? (
                           // for the single super admin, only allow edit & reset
                           <>
                             <button
@@ -451,7 +502,7 @@ export default function DashboardPage() {
                               Reset Password
                             </button>
                           </>
-                        ) : u.is_active ? (
+                        ) : canManageUsers && u.is_active ? (
                           <>
                             <button
                               onClick={() => openResetModal(u)}
@@ -472,7 +523,7 @@ export default function DashboardPage() {
                               Delete
                             </button>
                           </>
-                        ) : (
+                        ) : canManageUsers ? (
                           <>
                             <button
                               onClick={() => handleReactivate(u)}
@@ -487,7 +538,7 @@ export default function DashboardPage() {
                               Delete
                             </button>
                           </>
-                        )}
+                        ) : null}
                       </td>
                     </tr>
                   ))
@@ -595,10 +646,18 @@ export default function DashboardPage() {
       {/* ===== CREATE USER MODAL ===== */}
       <Modal
         isOpen={isCreateUserOpen}
-        onClose={() => setIsCreateUserOpen(false)}
+        onClose={() => {
+          setIsCreateUserOpen(false);
+          setCreateUserError("");
+        }}
         title="Create New User"
       >
         <form onSubmit={handleCreateUser} className="space-y-5">
+          {createUserError && (
+            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {createUserError}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Full Name
@@ -611,7 +670,7 @@ export default function DashboardPage() {
               onChange={(e) =>
                 setCreateUserForm({ ...createUserForm, name: e.target.value })
               }
-              placeholder="John Doe"
+              placeholder="Enter Name"
             />
           </div>
           <div>
@@ -626,7 +685,7 @@ export default function DashboardPage() {
               onChange={(e) =>
                 setCreateUserForm({ ...createUserForm, email: e.target.value })
               }
-              placeholder="user@notifyhub.in"
+              placeholder="Enter Email"
             />
           </div>
           <div>
@@ -644,7 +703,7 @@ export default function DashboardPage() {
                   password: e.target.value,
                 })
               }
-              placeholder="••••••••"
+              placeholder="Enter Password"
             />
           </div>
           <div>
@@ -658,6 +717,35 @@ export default function DashboardPage() {
               }
               roles={createRoles}
             />
+          </div>
+          <div>
+            <label
+              htmlFor="create-user-department"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Department
+            </label>
+            <select
+              id="create-user-department"
+              required
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              value={createUserForm.department_id}
+              onChange={(e) =>
+                setCreateUserForm({
+                  ...createUserForm,
+                  department_id: e.target.value,
+                })
+              }
+            >
+              <option value="" disabled>
+                Select a department
+              </option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
             <button
@@ -727,6 +815,35 @@ export default function DashboardPage() {
               }
               roles={editRoles}
             />
+          </div>
+          <div>
+            <label
+              htmlFor="edit-user-department"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Department
+            </label>
+            <select
+              id="edit-user-department"
+              required
+              className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              value={editUserForm.department_id}
+              onChange={(e) =>
+                setEditUserForm({
+                  ...editUserForm,
+                  department_id: e.target.value,
+                })
+              }
+            >
+              <option value="" disabled>
+                Select a department
+              </option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
             <button

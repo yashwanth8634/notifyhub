@@ -25,7 +25,8 @@ export const announcementModel = {
     let sql = `
       SELECT
         a.*,
-        u.name AS author_name
+        u.name AS author_name,
+        u.role AS author_role
       FROM announcements a
       LEFT JOIN users u
         ON a.user_id = u.id
@@ -64,7 +65,8 @@ export const announcementModel = {
       `
         SELECT
           a.*,
-          u.name AS author_name
+          u.name AS author_name,
+          u.role AS author_role
         FROM announcements a
         LEFT JOIN users u
           ON a.user_id = u.id

@@ -6,8 +6,14 @@ export interface User {
   email: string;
   role: Role;
   department_id: number | null;
+  department_name?: string | null;
   is_active: boolean;
   created_at: string;
+}
+
+export interface Department {
+  id: number;
+  name: string;
 }
 
 export interface UserRecord extends User {
@@ -22,6 +28,7 @@ export interface Announcement {
   department: string | null;
   user_id: number;
   author_name?: string;
+  author_role?: Role;
   published_at: string;
   is_alert: boolean;
   created_at: string;

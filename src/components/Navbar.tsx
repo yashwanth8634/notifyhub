@@ -21,14 +21,14 @@ export function Navbar() {
     { name: "Alerts", path: "/alerts" },
   ];
 
-  if (user?.role === "super_admin") {
-    navLinks.push({ name: "Dashboard", path: "/dashboard" });
-  } else if (
-    user?.role === "faculty" ||
-    user?.role === "hod" ||
+  if (
+    user?.role === "super_admin" ||
+    user?.role === "principal" ||
     user?.role === "dean" ||
-    user?.role === "principal"
+    user?.role === "hod"
   ) {
+    navLinks.push({ name: "Dashboard", path: "/dashboard" });
+  } else if (user?.role === "faculty") {
     navLinks.push({ name: "Profile", path: "/profile" });
   } else {
     navLinks.push({ name: "Contact", path: "/contact" });
@@ -98,16 +98,17 @@ export function Navbar() {
           </a>
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
-              <div
-                className="flex items-center gap-2 group cursor-default"
-                title={user?.name}
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 group"
+                title="Profile"
               >
                 <img
                   src="/logos/profileLogo.png"
                   alt="Profile"
                   className="w-7 h-7 rounded-md invert brightness-75 group-hover:brightness-100 transition-all cursor-pointer"
                 />
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="p-2 text-gray-400 hover:text-red-400 hover:bg-white/10 rounded-md transition-colors"

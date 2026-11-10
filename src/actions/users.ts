@@ -9,17 +9,27 @@ import { logger } from '@/lib/logger';
 
 export async function getUsers() {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
-  return userService.findAll();
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
+  return userService.findAll(actor as { id: number; role: import('@/types').Role; departmentId?: number });
+}
+
+export async function getDepartments() {
+  const user = await getSession();
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
+  const departments = await userModel.findDepartments();
+  if (actor.role === 'hod') {
+    return departments.filter((department) => department.id === actor.departmentId);
+  }
+  return departments;
 }
 
 export async function createUser(data: unknown) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   const validation = createUserSchema.safeParse(data);
   if (!validation.success) {
-    throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
+    return { success: false as const, error: validation.error.issues[0].message };
   }
 
   logger.info('Creating user', {
@@ -28,7 +38,13 @@ export async function createUser(data: unknown) {
     metadata: { email: validation.data.email, role: validation.data.role },
   });
 
-  return userService.create(user!.id, validation.data);
+  return {
+    success: true as const,
+    user: await userService.create(
+      actor as { id: number; role: import('@/types').Role; departmentId?: number },
+      validation.data,
+    ),
+  };
 }
 
 export async function updateUser(id: number, data: unknown) {

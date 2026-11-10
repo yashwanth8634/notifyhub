@@ -82,6 +82,10 @@ export function NoticeCard({
             Published by{" "}
             <span className="font-medium text-gray-200">
               {notice.author_name || "Unknown"}
+              {notice.author_role &&
+                ` (${notice.author_role
+                  .replace("_", " ")
+                  .replace(/\b\w/g, (letter) => letter.toUpperCase())})`}
             </span>
           </div>
         </div>

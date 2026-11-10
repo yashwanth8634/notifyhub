@@ -1,5 +1,5 @@
 import { query } from '@/config/db';
-import { User, UserRecord, Role } from '@/types';
+import { Department, User, UserRecord, Role } from '@/types';
 
 interface UserCreateData {
   name: string;
@@ -28,13 +28,32 @@ export const userModel = {
   },
 
   async findById(id: number): Promise<User | null> {
-    const result = await query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0] ?? null;
+    const result = await query(
+      `SELECT u.id, u.name, u.email, u.role, u.department_id,
+              d.name AS department_name, u.is_active, u.created_at
+       FROM users u
+       LEFT JOIN departments d ON d.id = u.department_id
+       WHERE u.id = $1`,
+      [id],
+    );
+    if (!result.rows[0]) return null;
+    return result.rows[0];
   },
 
   async findAll(): Promise<User[]> {
     const result = await query(
-      'SELECT id, name, email, role, department_id, is_active, created_at FROM users ORDER BY created_at DESC'
+      `SELECT u.id, u.name, u.email, u.role, u.department_id,
+              d.name AS department_name, u.is_active, u.created_at
+       FROM users u
+       LEFT JOIN departments d ON d.id = u.department_id
+       ORDER BY u.created_at DESC`
+    );
+    return result.rows;
+  },
+
+  async findDepartments(): Promise<Department[]> {
+    const result = await query(
+      'SELECT id, name FROM departments ORDER BY name ASC',
     );
     return result.rows;
   },
@@ -46,7 +65,12 @@ export const userModel = {
        VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, department_id, is_active, created_at`,
       [name, email, password_hash, role, department_id ?? null]
     );
-    return result.rows[0];
+    const created = result.rows[0];
+    const user = await this.findById(created.id);
+    if (!user) {
+      throw new Error('Created user could not be loaded');
+    }
+    return user;
   },
 
   async findByRole(role: Role): Promise<UserRecord | null> {

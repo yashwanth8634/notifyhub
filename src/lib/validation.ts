@@ -9,25 +9,24 @@ export const loginSchema = z.object({
 export const createUserSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(255),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
+  password: z.string(),
   role: z.enum(ROLES),
+  department_id: z.preprocess(
+    (value) => value === '' || value === undefined ? undefined : value,
+    z.coerce.number().int().positive('Department is required'),
+  ),
 });
 
 export const updateUserSchema = z.object({
   name: z.string().min(2).max(255).optional(),
   email: z.string().email().optional(),
   role: z.enum(ROLES).optional(),
+  department_id: z.coerce.number().int().positive('Department is required'),
   is_active: z.boolean().optional(),
 });
 
 export const resetPasswordSchema = z.object({
-  newPassword: z.string().min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
+  newPassword: z.string(),
 });
 
 export const announcementSchema = z.object({
@@ -62,7 +61,7 @@ export const respondToQuerySchema = z.object({
 export const profileUpdateSchema = z.object({
   name: z.string().min(2).max(255).optional(),
   email: z.string().email().optional(),
-  password: z.string().min(8).optional(),
+  password: z.string().optional(),
 });
 
 export const webhookSubscribeSchema = z.object({

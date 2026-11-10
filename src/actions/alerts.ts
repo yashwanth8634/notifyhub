@@ -34,7 +34,7 @@ export async function createAlert(data: unknown) {
 
 export async function updateAlert(id: number, data: unknown) {
   const user = await getSession();
-  const authUser = requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, ['super_admin']);
   
   const validation = announcementSchema.partial().safeParse(data);
   if (!validation.success) {

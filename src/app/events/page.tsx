@@ -1,5 +1,5 @@
 "use client";
-import { getEvents, createEvent, deleteEvent } from "@/actions/events";
+import { getEvents, createEvent, updateEvent, deleteEvent } from "@/actions/events";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import type { Event } from "@/types";
@@ -16,6 +16,7 @@ export default function EventsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -53,9 +54,19 @@ export default function EventsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const created = await createEvent(formData);
-      setEvents([created, ...events]);
+      if (editingId === null) {
+        const created = await createEvent(formData);
+        setEvents((prev) => [created, ...prev]);
+      } else {
+        const updated = await updateEvent(editingId, formData);
+        setEvents((prev) =>
+          prev.map((item) =>
+            item.id === editingId ? { ...item, ...updated } : item,
+          ),
+        );
+      }
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData({
         title: "",
         description: "",
@@ -69,6 +80,18 @@ export default function EventsPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEdit = (event: Event) => {
+    setEditingId(event.id);
+    setFormData({
+      title: event.title,
+      description: event.description,
+      event_date: new Date(event.event_date).toISOString().slice(0, 16),
+      location: event.location || "",
+      category: event.category || "Placements",
+    });
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -172,10 +195,9 @@ export default function EventsPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  {canPublish &&
-                    (user?.role === "super_admin" ||
-                      user?.id === event.user_id) && (
+                  {canDelete && (
                       <Button
+                        onClick={() => handleEdit(event)}
                         variant="ghost"
                         size="sm"
                         className="p-2 rounded-md"
@@ -224,7 +246,7 @@ export default function EventsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="New Event"
+        title={editingId === null ? "New Event" : "Edit Event"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
@@ -324,7 +346,13 @@ export default function EventsPage() {
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : null}
-              {isSubmitting ? "Creating..." : "Create Event"}
+              {isSubmitting
+                ? editingId === null
+                  ? "Creating..."
+                  : "Saving..."
+                : editingId === null
+                  ? "Create Event"
+                  : "Save Changes"}
             </Button>
           </div>
         </form>

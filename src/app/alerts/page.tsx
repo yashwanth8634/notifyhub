@@ -1,5 +1,5 @@
 "use client";
-import { getAlerts, createAlert, deleteAlert } from "@/actions/alerts";
+import { getAlerts, createAlert, updateAlert, deleteAlert } from "@/actions/alerts";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import type { Announcement } from "@/types";
@@ -14,6 +14,7 @@ export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     department: "",
@@ -51,9 +52,19 @@ export default function AlertsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const created = await createAlert(formData);
-      setAlerts([created, ...alerts]);
+      if (editingId === null) {
+        const created = await createAlert(formData);
+        setAlerts((prev) => [created, ...prev]);
+      } else {
+        const updated = await updateAlert(editingId, formData);
+        setAlerts((prev) =>
+          prev.map((item) =>
+            item.id === editingId ? { ...item, ...updated } : item,
+          ),
+        );
+      }
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData({
         title: "",
         department: "",
@@ -67,6 +78,18 @@ export default function AlertsPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEdit = (alert: Announcement) => {
+    setEditingId(alert.id);
+    setFormData({
+      title: alert.title,
+      department: alert.department || "",
+      body: alert.body,
+      category: alert.category || "general",
+      is_alert: true,
+    });
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -117,11 +140,9 @@ export default function AlertsPage() {
             <NoticeCard
               key={notice.id}
               notice={notice}
-              canEdit={
-                canPublish &&
-                (user?.role === "super_admin" || user?.id === notice.user_id)
-              }
+              canEdit={canDelete}
               canDelete={canDelete}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))}
@@ -131,7 +152,7 @@ export default function AlertsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="New Alert"
+        title={editingId === null ? "New Alert" : "Edit Alert"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
@@ -195,7 +216,13 @@ export default function AlertsPage() {
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
               ) : null}
-              {isSubmitting ? "Publishing..." : "Publish Alert"}
+              {isSubmitting
+                ? editingId === null
+                  ? "Publishing..."
+                  : "Saving..."
+                : editingId === null
+                  ? "Publish Alert"
+                  : "Save Changes"}
             </Button>
           </div>
         </form>

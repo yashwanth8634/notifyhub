@@ -19,12 +19,37 @@ interface UserUpdateData {
   is_active?: boolean | null;
 }
 
+interface UserActor {
+  id: number;
+  role: Role;
+  departmentId?: number;
+}
+
 export const userService = {
-  async findAll(): Promise<User[]> {
-    return userModel.findAll();
+  async findAll(actor: UserActor): Promise<User[]> {
+    const users = await userModel.findAll();
+    if (actor.role === 'hod') {
+      return users.filter((user) => user.department_id === actor.departmentId);
+    }
+    return users;
   },
 
-  async create(_actorId: number, data: UserCreateData): Promise<User> {
+  async create(actor: UserActor, data: UserCreateData): Promise<User> {
+    const allowedRoles: Record<Role, Role[]> = {
+      super_admin: ['super_admin', 'principal', 'dean', 'hod', 'faculty', 'student'],
+      principal: ['dean', 'hod'],
+      dean: ['hod', 'faculty'],
+      hod: ['faculty'],
+      faculty: [],
+      student: [],
+    };
+    if (!allowedRoles[actor.role].includes(data.role)) {
+      throw new AuthError('FORBIDDEN', 403, 'You cannot create this role');
+    }
+    if (actor.role === 'hod' && data.department_id !== actor.departmentId) {
+      throw new AuthError('FORBIDDEN', 403, 'You can only create users in your department');
+    }
+
     if (data.role === 'super_admin') {
       const existing = await userModel.findByRole('super_admin');
       if (existing) throw new AuthError('ALREADY_EXISTS', 400, 'A super admin already exists');

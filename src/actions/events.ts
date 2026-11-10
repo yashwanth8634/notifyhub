@@ -34,7 +34,7 @@ export async function createEvent(data: unknown) {
 
 export async function updateEvent(id: number, data: unknown) {
   const user = await getSession();
-  const authUser = requireRole(user, PUBLISHING_ROLES);
+  const authUser = requireRole(user, ['super_admin']);
   
   const validation = eventSchema.partial().safeParse(data);
   if (!validation.success) {
