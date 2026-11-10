@@ -5,16 +5,21 @@ import { logger } from '@/lib/logger';
 
 export async function getStats() {
   try {
-    const [announcementCount, alertCount, eventsCount, departmentsCount] = await Promise.all([
-      query("SELECT COUNT(*) FROM announcements WHERE deleted_at IS NULL"),
-      query("SELECT COUNT(*) FROM announcements WHERE is_alert = true AND deleted_at IS NULL"),
+    const [announcementStats, eventsCount, departmentsCount] = await Promise.all([
+      query(`
+        SELECT
+          COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE is_alert = true)::int AS alerts
+        FROM announcements
+        WHERE deleted_at IS NULL
+      `),
       query("SELECT COUNT(*) FROM events WHERE event_date > CURRENT_TIMESTAMP AND deleted_at IS NULL"),
       query("SELECT COUNT(*) FROM departments"),
     ]);
 
     return {
-      totalNotices: parseInt(announcementCount.rows[0].count, 10),
-      urgentAlerts: parseInt(alertCount.rows[0].count, 10),
+      totalNotices: announcementStats.rows[0].total,
+      urgentAlerts: announcementStats.rows[0].alerts,
       upcomingEvents: parseInt(eventsCount.rows[0].count, 10),
       departments: parseInt(departmentsCount.rows[0].count, 10),
     };
