@@ -115,6 +115,14 @@ export default function DashboardPage() {
       setCreateUserForm(EMPTY_USER_FORM);
     } catch (error) {
       console.error("Failed to create user:", error);
+      if (
+        error instanceof Error &&
+        error.message.includes("Server Action") &&
+        error.message.includes("was not found")
+      ) {
+        window.location.reload();
+        return;
+      }
       alert("Failed to create user");
     } finally {
       setIsCreatingUser(false);
