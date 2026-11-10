@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Send, Search, X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Query } from "@/types";
+import { getClientErrorMessage } from "@/lib/clientError";
 
 export default function ContactPage() {
 
@@ -57,6 +58,7 @@ export default function ContactPage() {
       setShowSuccessPopup(true);
     } catch (error) {
       console.error("Failed to submit query:", error);
+      setTrackingError(getClientErrorMessage(error, "Failed to submit query."));
       setStatus("error");
     }
   };
@@ -79,7 +81,7 @@ export default function ContactPage() {
       setTrackedQuery(query);
     } catch (error) {
       console.error("Failed to track query:", error);
-      setTrackingError("Query not found.");
+      setTrackingError(getClientErrorMessage(error, "Query not found."));
     } finally {
       setTrackingLoading(false);
     }
@@ -127,7 +129,7 @@ export default function ContactPage() {
 
             {status === "error" && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-md text-sm">
-                Failed to submit query. Please try again.
+                {trackingError || "Failed to submit query. Please try again."}
               </div>
             )}
 

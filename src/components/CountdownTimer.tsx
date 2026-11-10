@@ -25,15 +25,13 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
     return <span className="font-bold">Expired</span>;
   }
 
-  const hours = Math.floor(timeLeft / 3600);
+  const days = Math.floor(timeLeft / 86400);
+  const hours = Math.floor((timeLeft % 86400) / 3600);
   const minutes = Math.floor((timeLeft % 3600) / 60);
-  const seconds = timeLeft % 60;
 
   return (
     <span className="font-mono font-bold tracking-wider">
-      {String(hours).padStart(2, '0')}:
-      {String(minutes).padStart(2, '0')}:
-      {String(seconds).padStart(2, '0')}
+      {days}d {String(hours).padStart(2, '0')}h {String(minutes).padStart(2, '0')}m
     </span>
   );
 }

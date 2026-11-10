@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getProfile, updateProfile } from "@/actions/profile";
 import { Button } from "@/components/Button";
+import { getClientErrorMessage } from "@/lib/clientError";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { User, Mail, Lock, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
   
   const [formData, setFormData] = useState({
     name: "",
@@ -46,6 +49,8 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
+    setFormSuccess("");
     setIsSaving(true);
     try {
       await updateProfile({
@@ -53,13 +58,13 @@ export default function ProfilePage() {
         email: formData.email,
         password: formData.password || undefined,
       });
-      alert("Profile updated successfully!");
+      setFormSuccess("Profile updated successfully.");
       setFormData(prev => ({ ...prev, password: "" }));
       // If email changed, might need to re-login depending on auth setup
       // Assuming they stay logged in for now, but a logout might be safer if email changes.
     } catch (error) {
       console.error("Failed to update profile:", error);
-      alert("Failed to update profile.");
+      setFormError(getClientErrorMessage(error, "Failed to update profile."));
     } finally {
       setIsSaving(false);
     }
@@ -81,6 +86,16 @@ export default function ProfilePage() {
 
       <div className="glass-nav p-8 rounded-md border border-white/5 shadow-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {formError && (
+            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {formError}
+            </div>
+          )}
+          {formSuccess && (
+            <div className="rounded-md border border-green-500/20 bg-green-500/10 p-4 text-sm text-green-400">
+              {formSuccess}
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-300 ml-1 ">
               Full Name

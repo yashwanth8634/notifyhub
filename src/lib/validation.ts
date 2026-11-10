@@ -37,10 +37,15 @@ export const announcementSchema = z.object({
   is_alert: z.boolean().optional().default(false),
 });
 
+const eventDateSchema = z.string().refine(
+  (value) => value.trim() !== '' && !Number.isNaN(new Date(value).getTime()),
+  'Invalid date format',
+).transform((value) => new Date(value).toISOString());
+
 export const eventSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(255),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  event_date: z.string().datetime('Invalid date format'),
+  event_date: eventDateSchema,
   location: z.string().max(255).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
 });

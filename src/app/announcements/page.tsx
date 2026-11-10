@@ -13,6 +13,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/Button";
 import { Plus, Loader2 } from "lucide-react";
+import { getClientErrorMessage } from "@/lib/clientError";
 
 export default function AnnouncementsPage() {
   const { hasRole, user } = useAuth();
@@ -39,6 +40,7 @@ export default function AnnouncementsPage() {
     category: "general",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const canPublish = hasRole([
     "super_admin",
@@ -66,6 +68,7 @@ export default function AnnouncementsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     setIsSubmitting(true);
     try {
       if (editingId === null) {
@@ -84,7 +87,7 @@ export default function AnnouncementsPage() {
       setFormData({ title: "", department: "", body: "", category: "general" });
     } catch (error) {
       console.error("Failed to create announcement:", error);
-      alert("Failed to create announcement");
+      setFormError(getClientErrorMessage(error, "Failed to save announcement"));
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +111,7 @@ export default function AnnouncementsPage() {
       setAnnouncements((prev) => prev.filter((a) => a.id !== id));
     } catch (error) {
       console.error("Failed to delete:", error);
-      alert("Failed to delete announcement");
+      setFormError(getClientErrorMessage(error, "Failed to delete announcement"));
     }
   };
 
@@ -209,6 +212,11 @@ export default function AnnouncementsPage() {
         title={editingId === null ? "New Announcement" : "Edit Announcement"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
+          {formError && (
+            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {formError}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Title

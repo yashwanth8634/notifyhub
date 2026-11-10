@@ -8,6 +8,7 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/Button";
 import { Plus, AlertTriangle, Loader2 } from "lucide-react";
+import { getClientErrorMessage } from "@/lib/clientError";
 
 export default function AlertsPage() {
   const { hasRole, user } = useAuth();
@@ -23,6 +24,7 @@ export default function AlertsPage() {
     is_alert: true,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const canPublish = hasRole([
     "super_admin",
@@ -50,6 +52,7 @@ export default function AlertsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     setIsSubmitting(true);
     try {
       if (editingId === null) {
@@ -74,7 +77,7 @@ export default function AlertsPage() {
       });
     } catch (error) {
       console.error("Failed to create alert:", error);
-      alert("Failed to create alert");
+      setFormError(getClientErrorMessage(error, "Failed to save alert"));
     } finally {
       setIsSubmitting(false);
     }
@@ -99,6 +102,7 @@ export default function AlertsPage() {
       setAlerts((prev) => prev.filter((a) => a.id !== id));
     } catch (error) {
       console.error("Failed to delete:", error);
+      setFormError(getClientErrorMessage(error, "Failed to delete alert"));
     }
   };
 
@@ -155,6 +159,11 @@ export default function AlertsPage() {
         title={editingId === null ? "New Alert" : "Edit Alert"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
+          {formError && (
+            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {formError}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-red-300 mb-2">
               Alert Title

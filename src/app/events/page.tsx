@@ -8,6 +8,8 @@ import { format } from "date-fns";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/Button";
+import { CountdownTimer } from "@/components/CountdownTimer";
+import { getClientErrorMessage } from "@/lib/clientError";
 
 export default function EventsPage() {
   const { hasRole, user } = useAuth();
@@ -25,6 +27,7 @@ export default function EventsPage() {
     category: "Placements",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const canPublish = hasRole([
     "super_admin",
@@ -52,6 +55,7 @@ export default function EventsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     setIsSubmitting(true);
     try {
       if (editingId === null) {
@@ -76,7 +80,7 @@ export default function EventsPage() {
       });
     } catch (error) {
       console.error("Failed to create event:", error);
-      alert("Failed to create event");
+      setFormError(getClientErrorMessage(error, "Failed to save event"));
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +105,7 @@ export default function EventsPage() {
       setEvents((prev) => prev.filter((e) => e.id !== id));
     } catch (error) {
       console.error("Failed to delete:", error);
+      setFormError(getClientErrorMessage(error, "Failed to delete event"));
     }
   };
 
@@ -156,7 +161,7 @@ export default function EventsPage() {
               size="sm"
               className={category === cat ? "" : "text-gray-300"}
             >
-              {cat}
+              {cat === "Placements" ? "Tech" : cat}
             </Button>
           ))}
         </div>
@@ -185,12 +190,18 @@ export default function EventsPage() {
               className="glass-nav rounded-md p-6 flex flex-col h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/5"
             >
               <div className="flex justify-between items-start mb-5">
-                <div className="bg-purple-500/10 text-purple-400 p-3 rounded-md text-center w-20 border border-purple-500/20">
-                  <div className="text-xs font-bold uppercase tracking-wider">
-                    {format(new Date(event.event_date), "MMM")}
+                <div className="flex items-center gap-5">
+                  <div className="bg-purple-500/10 text-purple-400 p-3 rounded-md text-center w-20 border border-purple-500/20">
+                    <div className="text-xs font-bold uppercase tracking-wider">
+                      {format(new Date(event.event_date), "MMM")}
+                    </div>
+                    <div className="text-2xl font-black">
+                      {format(new Date(event.event_date), "d")}
+                    </div>
                   </div>
-                  <div className="text-2xl font-black">
-                    {format(new Date(event.event_date), "d")}
+                  <div className="text-purple-300">
+                    <span className="mr-2">Starts in:</span>
+                    <CountdownTimer targetDate={event.event_date} />
                   </div>
                 </div>
 
@@ -249,6 +260,11 @@ export default function EventsPage() {
         title={editingId === null ? "New Event" : "Edit Event"}
       >
         <form onSubmit={handleCreate} className="space-y-5">
+          {formError && (
+            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+              {formError}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Event Title
@@ -310,7 +326,7 @@ export default function EventsPage() {
               }
               className="block w-full px-4 py-3 bg-[#151515]/70 border border-white/10 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             >
-              <option value="Placements">Placements</option>
+              <option value="Placements">Tech</option>
               <option value="Sports">Sports</option>
               <option value="Workshop">Workshop</option>
               <option value="Ceremony">Ceremony</option>

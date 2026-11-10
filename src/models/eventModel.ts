@@ -44,7 +44,7 @@ export const eventModel = {
     }
 
     sql += `
-      ORDER BY e.event_date ASC
+      ORDER BY e.event_date DESC
       LIMIT $${index}
       OFFSET $${index + 1}
     `;

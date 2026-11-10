@@ -26,6 +26,7 @@ import {
 import { format } from "date-fns";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { useAuth } from "@/context/AuthContext";
+import { getClientErrorMessage } from "@/lib/clientError";
 
 type DashboardTab = "accounts" | "queries";
 
@@ -63,6 +64,7 @@ export default function DashboardPage() {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [createUserForm, setCreateUserForm] = useState(EMPTY_USER_FORM);
   const [createUserError, setCreateUserError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
@@ -164,6 +166,7 @@ export default function DashboardPage() {
 
   const handleEditUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    setActionError("");
     setIsEditingUser(true);
     try {
       const { id, ...data } = editUserForm;
@@ -174,7 +177,7 @@ export default function DashboardPage() {
       setIsEditUserOpen(false);
     } catch (error) {
       console.error("Failed to update user:", error);
-      alert("Failed to update user");
+      setActionError(getClientErrorMessage(error, "Failed to update user"));
     } finally {
       setIsEditingUser(false);
     }
@@ -190,7 +193,7 @@ export default function DashboardPage() {
       );
     } catch (error) {
       console.error("Failed to deactivate user:", error);
-      alert("Failed to deactivate user");
+      setActionError(getClientErrorMessage(error, "Failed to deactivate user"));
     }
   };
 
@@ -203,7 +206,7 @@ export default function DashboardPage() {
       );
     } catch (error) {
       console.error("Failed to reactivate user:", error);
-      alert("Failed to reactivate user");
+      setActionError(getClientErrorMessage(error, "Failed to reactivate user"));
     }
   };
 
@@ -217,7 +220,7 @@ export default function DashboardPage() {
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
     } catch (error) {
       console.error("Failed to delete user:", error);
-      alert("Failed to delete user");
+      setActionError(getClientErrorMessage(error, "Failed to delete user"));
     }
   };
 
@@ -234,10 +237,10 @@ export default function DashboardPage() {
     try {
       await resetPassword(resetUserId, resetPasswordValue);
       setIsResetOpen(false);
-      alert("Password reset successfully");
+      setActionError("");
     } catch (error) {
       console.error("Failed to reset password:", error);
-      alert("Failed to reset password");
+      setActionError(getClientErrorMessage(error, "Failed to reset password"));
     } finally {
       setIsResetting(false);
     }
@@ -285,7 +288,7 @@ export default function DashboardPage() {
       setResponseText("");
     } catch (error) {
       console.error("Failed to respond to query:", error);
-      alert("Failed to respond");
+      setActionError(getClientErrorMessage(error, "Failed to respond"));
     } finally {
       setIsResponding(false);
     }
@@ -315,6 +318,11 @@ export default function DashboardPage() {
         <p className="mt-3 text-gray-400 text-lg">
           Manage accounts, queries, and system settings.
         </p>
+        {actionError && (
+          <div className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            {actionError}
+          </div>
+        )}
       </div>
 
       {/* Tab Navigation */}
