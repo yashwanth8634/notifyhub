@@ -49,7 +49,7 @@ export async function createUser(data: unknown) {
 
 export async function updateUser(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   const validation = updateUserSchema.safeParse(data);
   if (!validation.success) {
@@ -62,12 +62,12 @@ export async function updateUser(id: number, data: unknown) {
     metadata: { targetUserId: id },
   });
 
-  return userService.update(user!.id, id, validation.data);
+  return userService.update(actor as { id: number; role: import('@/types').Role; departmentId?: number }, id, validation.data);
 }
 
 export async function deactivateUser(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   logger.info('Deactivating user', {
     action: 'user_deactivate',
@@ -75,12 +75,12 @@ export async function deactivateUser(id: number) {
     metadata: { targetUserId: id },
   });
 
-  return userService.deactivate(user!.id, id);
+  return userService.deactivate(actor as { id: number; role: import('@/types').Role; departmentId?: number }, id);
 }
 
 export async function resetPassword(id: number, newPassword: string) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   const validation = resetPasswordSchema.safeParse({ newPassword });
   if (!validation.success) {
@@ -93,12 +93,12 @@ export async function resetPassword(id: number, newPassword: string) {
     metadata: { targetUserId: id },
   });
 
-  return userService.resetPassword(user!.id, id, validation.data.newPassword);
+  return userService.resetPassword(actor as { id: number; role: import('@/types').Role; departmentId?: number }, id, validation.data.newPassword);
 }
 
 export async function reactivateUser(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   logger.info('Reactivating user', {
     action: 'user_reactivate',
@@ -106,12 +106,12 @@ export async function reactivateUser(id: number) {
     metadata: { targetUserId: id },
   });
 
-  return userService.reactivate(user!.id, id);
+  return userService.reactivate(actor as { id: number; role: import('@/types').Role; departmentId?: number }, id);
 }
 
 export async function deleteUser(id: number) {
   const user = await getSession();
-  requireRole(user, ['super_admin']);
+  const actor = requireRole(user, ['super_admin', 'principal', 'dean', 'hod']);
   
   logger.info('Deleting user', {
     action: 'user_delete',
@@ -119,7 +119,8 @@ export async function deleteUser(id: number) {
     metadata: { targetUserId: id },
   });
 
-  const deleted = await userModel.delete(id);
-  if (!deleted) throw new AuthError('NOT_FOUND', 404, 'User not found');
-  return { success: true };
+  return userService.delete(
+    actor as { id: number; role: import('@/types').Role; departmentId?: number },
+    id,
+  );
 }

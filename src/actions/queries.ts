@@ -10,14 +10,14 @@ import { QueryFiltersInput } from '@/lib/validation';
 
 export async function getQueries(filters: Partial<QueryFiltersInput> = {}) {
   const user = await getSession();
-  if (!user) throw new AuthError('UNAUTHORIZED', 401, 'Authentication required');
+  const authUser = requireRole(user, ['super_admin']);
   
   const validation = queryFiltersSchema.safeParse(filters);
   if (!validation.success) {
     throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
   }
   
-  return queryService.findAllForUser(user, validation.data);
+  return queryService.findAllForUser(authUser, validation.data);
 }
 
 export async function createQuery(data: unknown) {
@@ -46,6 +46,8 @@ export async function createQuery(data: unknown) {
 }
 
 export async function getQueryById(id: string) {
+  const user = await getSession();
+  requireRole(user, ['super_admin']);
   const queryId = parseInt(id, 10);
   if (isNaN(queryId)) {
     throw new AuthError('VALIDATION_ERROR', 400, 'Invalid query ID');
@@ -55,7 +57,7 @@ export async function getQueryById(id: string) {
 
 export async function respondToQuery(id: number, data: unknown) {
   const user = await getSession();
-  const authUser = requireRole(user, ['super_admin', 'hod']);
+  const authUser = requireRole(user, ['super_admin']);
   
   const validation = respondToQuerySchema.safeParse(data);
   if (!validation.success) {

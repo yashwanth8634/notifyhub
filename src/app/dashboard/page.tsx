@@ -50,6 +50,19 @@ const EMPTY_USER_FORM = {
 export default function DashboardPage() {
   const { user: currentUser } = useAuth();
   const canManageUsers = currentUser?.role === "super_admin";
+  const canViewQueries = currentUser?.role === "super_admin";
+  const canManageAccount = (account: User) => {
+    if (currentUser?.role === "super_admin") return true;
+    if (currentUser?.role === "principal")
+      return ["dean", "hod"].includes(account.role);
+    if (currentUser?.role === "dean")
+      return ["hod", "faculty"].includes(account.role);
+    return (
+      currentUser?.role === "hod" &&
+      account.role === "faculty" &&
+      account.department_id === currentUser.department_id
+    );
+  };
   const canCreateUsers = ["super_admin", "principal", "dean", "hod"].includes(
     currentUser?.role || "",
   );
@@ -107,6 +120,10 @@ export default function DashboardPage() {
   };
 
   const fetchQueries = async () => {
+    if (!canViewQueries) {
+      setQueriesLoading(false);
+      return;
+    }
     try {
       const data = await getQueries();
       setQueries(data);
@@ -120,7 +137,7 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchUsers();
     fetchQueries();
-  }, []);
+  }, [canViewQueries]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,16 +266,29 @@ export default function DashboardPage() {
   // --- Queries API calls ---
   
 
-  // Role availability controls (only one principal allowed)
-  const hasPrincipal = users.some((u) => u.role === "principal");
+  // Role availability controls (only one active principal allowed)
+  const hasPrincipal = users.some(
+    (u) => u.role === "principal" && u.is_active !== false,
+  );
   const createRoles = ROLES.filter(
     (r) =>
+      r !== "student" &&
+      r !== "super_admin" &&
       (currentUser?.role === "super_admin" ||
         (currentUser?.role === "principal" && ["dean", "hod"].includes(r)) ||
-        (currentUser?.role === "dean" && ["hod", "faculty"].includes(r)) ||
+        (currentUser?.role === "dean" && r === "hod") ||
         (currentUser?.role === "hod" && r === "faculty")) &&
       !(r === "principal" && hasPrincipal),
   );
+  useEffect(() => {
+    if (hasPrincipal && createUserForm.role === "principal") {
+      const fallbackRole = createRoles[0];
+      if (fallbackRole) {
+        setCreateUserForm((form) => ({ ...form, role: fallbackRole }));
+      }
+    }
+  }, [hasPrincipal, createUserForm.role, createRoles]);
+
   const editRoles = ROLES.filter(
     (r) =>
       r !== "student" &&
@@ -308,12 +338,22 @@ export default function DashboardPage() {
     return "bg-blue-500/10 text-blue-400 border-blue-500/20";
   };
 
+  const departmentName =
+    currentUser?.department_name ??
+    users.find((user) => user.id === currentUser?.id)?.department_name;
+  const dashboardTitle =
+    currentUser?.role === "hod" && departmentName
+      ? `${departmentName} HOD Dashboard`
+      : currentUser?.role
+        ? `${currentUser.role.replace("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())} Dashboard`
+        : "Dashboard";
+
   return (
     <div className="animate-fade-in font-display">
       <div className="mb-10">
         <h1 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
           <Shield className="w-10 h-10 text-purple-500 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-          Admin Dashboard
+          {dashboardTitle}
         </h1>
         <p className="mt-3 text-gray-400 text-lg">
           Manage accounts, queries, and system settings.
@@ -338,22 +378,24 @@ export default function DashboardPage() {
           <Users className="w-4 h-4" />
           Accounts
         </button>
-        <button
-          onClick={() => setActiveTab("queries")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-all ${
-            activeTab === "queries"
-              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-              : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
-          }`}
-        >
-          <MessageSquare className="w-4 h-4" />
-          Queries
-          {queries.filter((q) => q.status === "open").length > 0 && (
-            <span className="ml-1 px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-md border border-red-500/30">
-              {queries.filter((q) => q.status === "open").length}
-            </span>
-          )}
-        </button>
+        {canViewQueries && (
+          <button
+            onClick={() => setActiveTab("queries")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-all ${
+              activeTab === "queries"
+                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            Queries
+            {queries.filter((q) => q.status === "open").length > 0 && (
+              <span className="ml-1 px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-md border border-red-500/30">
+                {queries.filter((q) => q.status === "open").length}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* ===== ACCOUNTS TAB ===== */}
@@ -490,7 +532,7 @@ export default function DashboardPage() {
                         {format(new Date(u.created_at), "MMM d, yyyy")}
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-bold">
-                        {canManageUsers && (
+                        {canManageAccount(u) && (
                           <>
                             <button
                               onClick={() => openEditUser(u)}
@@ -500,7 +542,7 @@ export default function DashboardPage() {
                             </button>
                           </>
                         )}
-                        {canManageUsers && u.role === "super_admin" ? (
+                        {canManageAccount(u) && u.role === "super_admin" ? (
                           // for the single super admin, only allow edit & reset
                           <>
                             <button
@@ -510,7 +552,7 @@ export default function DashboardPage() {
                               Reset Password
                             </button>
                           </>
-                        ) : canManageUsers && u.is_active ? (
+                        ) : canManageAccount(u) && u.is_active ? (
                           <>
                             <button
                               onClick={() => openResetModal(u)}
@@ -524,14 +566,16 @@ export default function DashboardPage() {
                             >
                               Deactivate
                             </button>
-                            <button
-                              onClick={() => handleDelete(u)}
-                              className="text-red-600 hover:text-red-500 transition-colors cursor-pointer"
-                            >
-                              Delete
-                            </button>
+                            {canManageAccount(u) && (
+                              <button
+                                onClick={() => handleDelete(u)}
+                                className="text-red-600 hover:text-red-500 transition-colors cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            )}
                           </>
-                        ) : canManageUsers ? (
+                        ) : canManageAccount(u) ? (
                           <>
                             <button
                               onClick={() => handleReactivate(u)}
@@ -539,12 +583,14 @@ export default function DashboardPage() {
                             >
                               Reactivate
                             </button>
-                            <button
-                              onClick={() => handleDelete(u)}
-                              className="text-red-600 hover:text-red-500 transition-colors cursor-pointer"
-                            >
-                              Delete
-                            </button>
+                            {canManageAccount(u) && (
+                              <button
+                                onClick={() => handleDelete(u)}
+                                className="text-red-600 hover:text-red-500 transition-colors cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            )}
                           </>
                         ) : null}
                       </td>
@@ -558,7 +604,7 @@ export default function DashboardPage() {
       )}
 
       {/* ===== QUERIES TAB ===== */}
-      {activeTab === "queries" && (
+      {canViewQueries && activeTab === "queries" && (
         <div className="space-y-6">
           {queriesLoading ? (
             <LoadingScreen />
