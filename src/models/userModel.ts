@@ -1,38 +1,60 @@
-// @ts-nocheck
 import { query } from '@/config/db';
+import { User, Role } from '@/types';
+
+interface UserCreateData {
+  name: string;
+  email: string;
+  password_hash: string;
+  role: Role;
+  department_id?: number | null;
+}
+
+interface UserUpdateData {
+  name?: string | null;
+  role?: Role | null;
+  department_id?: number | null;
+  is_active?: boolean | null;
+}
+
+interface UserProfileUpdateData {
+  name?: string | null;
+  email?: string | null;
+}
 
 export const userModel = {
-  async findByEmail(email) {
+  async findByEmail(email: string): Promise<User | null> {
     const result = await query('SELECT * FROM users WHERE email = $1', [email]);
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async findById(id) {
+  async findById(id: number): Promise<User | null> {
     const result = await query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async findAll() {
-    const result = await query('SELECT id, name, email, role, department_id, is_active, created_at FROM users ORDER BY created_at DESC');
+  async findAll(): Promise<User[]> {
+    const result = await query(
+      'SELECT id, name, email, role, department_id, is_active, created_at FROM users ORDER BY created_at DESC'
+    );
     return result.rows;
   },
 
-  async create(data) {
+  async create(data: UserCreateData): Promise<User> {
     const { name, email, password_hash, role, department_id } = data;
     const result = await query(
       `INSERT INTO users (name, email, password_hash, role, department_id) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role`,
-      [name, email, password_hash, role, department_id || null]
+       VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, department_id, is_active, created_at`,
+      [name, email, password_hash, role, department_id ?? null]
     );
     return result.rows[0];
   },
 
-  async findByRole(role) {
-    const result = await query('SELECT * FROM users WHERE role = $1 LIMIT 1', [role]);
-    return result.rows[0];
+  async findByRole(role: Role): Promise<User | null> {
+    const result = await query('SELECT * FROM users WHERE role = $1 AND is_active = true LIMIT 1', [role]);
+    return result.rows[0] ?? null;
   },
 
-  async update(id, data) {
+  async update(id: number, data: UserUpdateData): Promise<User | null> {
     const { name, role, department_id, is_active } = data;
     const result = await query(
       `UPDATE users 
@@ -40,40 +62,40 @@ export const userModel = {
            role = COALESCE($2, role), 
            department_id = $3, 
            is_active = COALESCE($4, is_active)
-       WHERE id = $5 RETURNING id, name, email, role`,
-      [name, role, department_id, is_active, id]
+       WHERE id = $5 RETURNING id, name, email, role, department_id, is_active, created_at`,
+      [name ?? null, role ?? null, department_id ?? null, is_active ?? null, id]
     );
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async deactivate(id) {
+  async deactivate(id: number): Promise<{ id: number } | null> {
     const result = await query('UPDATE users SET is_active = false WHERE id = $1 RETURNING id', [id]);
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async reactivate(id) {
+  async reactivate(id: number): Promise<{ id: number } | null> {
     const result = await query('UPDATE users SET is_active = true WHERE id = $1 RETURNING id', [id]);
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async delete(id) {
+  async delete(id: number): Promise<{ id: number } | null> {
     const result = await query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async updatePassword(id, hash) {
+  async updatePassword(id: number, hash: string): Promise<void> {
     await query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, id]);
   },
 
-  async updateProfile(id, data) {
+  async updateProfile(id: number, data: UserProfileUpdateData): Promise<User | null> {
     const { name, email } = data;
     const result = await query(
       `UPDATE users 
        SET name = COALESCE($1, name), 
            email = COALESCE($2, email)
-       WHERE id = $3 RETURNING id, name, email, role`,
-      [name, email, id]
+       WHERE id = $3 RETURNING id, name, email, role, department_id, is_active, created_at`,
+      [name ?? null, email ?? null, id]
     );
-    return result.rows[0];
+    return result.rows[0] ?? null;
   }
 };

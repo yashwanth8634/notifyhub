@@ -28,8 +28,9 @@ export default function LoginPage() {
       }
       login(data.user);
       navigate.replace(from);
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || "Failed to login");
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to login');
+      setError(error.message);
     } finally {
       setLoading(false);
     }

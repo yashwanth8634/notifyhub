@@ -34,10 +34,6 @@ export default function EventsPage() {
   ]);
   const canDelete = hasRole(["super_admin"]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
   const fetchEvents = async () => {
     try {
       const data = await getEvents();
@@ -48,6 +44,10 @@ export default function EventsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

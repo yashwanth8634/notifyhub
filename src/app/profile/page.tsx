@@ -8,7 +8,7 @@ import { User, Mail, Lock, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  const { user, hasRole, logout } = useAuth();
+  const { user, hasRole } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -20,14 +20,6 @@ export default function ProfilePage() {
   });
 
   const canAccessProfile = hasRole(["faculty", "hod", "dean", "principal"]);
-
-  useEffect(() => {
-    if (user && !canAccessProfile) {
-      router.push("/dashboard");
-    } else {
-      fetchProfileData();
-    }
-  }, [user]);
 
   const fetchProfileData = async () => {
     try {
@@ -43,6 +35,14 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user && !canAccessProfile) {
+      router.push("/dashboard");
+    } else {
+      fetchProfileData();
+    }
+  }, [user, canAccessProfile, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

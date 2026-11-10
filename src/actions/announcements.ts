@@ -2,34 +2,64 @@
 
 import { announcementService } from '@/services/announcementService';
 import { getSession } from '@/config/auth';
+import { requireRole, PUBLISHING_ROLES, AuthError } from '@/lib/auth';
+import { announcementSchema, announcementFiltersSchema } from '@/lib/validation';
+import { logger } from '@/lib/logger';
+import { AnnouncementFiltersInput } from '@/lib/validation';
 
-const publishingRoles = ['principal', 'dean', 'hod', 'faculty', 'super_admin'];
-
-function requireRole(user: any, roles: string[]) {
-  if (!user) throw new Error('UNAUTHORIZED');
-  if (roles.length > 0 && !roles.includes(user.role)) {
-    throw new Error('FORBIDDEN');
+export async function getAnnouncements(filters: AnnouncementFiltersInput = {}) {
+  const validation = announcementFiltersSchema.safeParse(filters);
+  if (!validation.success) {
+    throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
   }
+  return announcementService.findAll(validation.data);
 }
 
-export async function getAnnouncements(filters = {}) {
-  return announcementService.findAll(filters);
-}
-
-export async function createAnnouncement(data: any) {
+export async function createAnnouncement(data: unknown) {
   const user = await getSession();
-  requireRole(user, publishingRoles);
-  return announcementService.create(user, data);
+  requireRole(user, PUBLISHING_ROLES);
+  
+  const validation = announcementSchema.safeParse(data);
+  if (!validation.success) {
+    throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
+  }
+
+  logger.info('Creating announcement', {
+    action: 'announcement_create',
+    userId: user?.id,
+    metadata: { isAlert: validation.data.is_alert },
+  });
+
+  return announcementService.create(user, validation.data);
 }
 
-export async function updateAnnouncement(id: number, data: any) {
+export async function updateAnnouncement(id: number, data: unknown) {
   const user = await getSession();
-  requireRole(user, publishingRoles);
-  return announcementService.update(user, id, data);
+  requireRole(user, PUBLISHING_ROLES);
+  
+  const validation = announcementSchema.partial().safeParse(data);
+  if (!validation.success) {
+    throw new AuthError('VALIDATION_ERROR', 400, validation.error.issues[0].message);
+  }
+
+  logger.info('Updating announcement', {
+    action: 'announcement_update',
+    userId: user?.id,
+    metadata: { announcementId: id },
+  });
+
+  return announcementService.update(user, id, validation.data);
 }
 
 export async function deleteAnnouncement(id: number) {
   const user = await getSession();
   requireRole(user, ['super_admin']);
+  
+  logger.info('Deleting announcement', {
+    action: 'announcement_delete',
+    userId: user?.id,
+    metadata: { announcementId: id },
+  });
+
   return announcementService.delete(user, id);
 }

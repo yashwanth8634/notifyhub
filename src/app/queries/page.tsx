@@ -1,5 +1,5 @@
 "use client";
-import { getQueries, respondToQuery } from "@/actions/queries";
+import { getQueries } from "@/actions/queries";
 import { useState, useEffect } from "react";
 import type { Query } from "@/types";
 import { SLAIndicator } from "@/components/SLAIndicator";
@@ -9,10 +9,6 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 export default function QueryStatusPage() {
   const [queries, setQueries] = useState<Query[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchQueries();
-  }, []);
 
   const fetchQueries = async () => {
     try {
@@ -24,6 +20,10 @@ export default function QueryStatusPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchQueries();
+  }, []);
 
   return (
     <div className="animate-fade-in font-display">

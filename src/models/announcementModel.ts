@@ -1,14 +1,34 @@
-// @ts-nocheck
-
 import { query } from '@/config/db';
+import { Announcement } from '@/types';
+
+interface AnnouncementFilters {
+  is_alert?: boolean;
+  department?: string;
+  limit?: number;
+  offset?: number;
+}
+
+interface AnnouncementCreateData {
+  title: string;
+  body: string;
+  category: string | null;
+  department: string | null;
+  user_id: number;
+  is_alert?: boolean;
+}
+
+interface AnnouncementUpdateData {
+  title?: string | null;
+  body?: string | null;
+  category?: string | null;
+  department?: string | null;
+  is_alert?: boolean | null;
+}
 
 export const announcementModel = {
-  async findAll({
-    is_alert,
-    department,
-    limit = 50,
-    offset = 0,
-  } = {}) {
+  async findAll(filters: AnnouncementFilters = {}): Promise<Announcement[]> {
+    const { is_alert, department, limit = 50, offset = 0 } = filters;
+    
     let sql = `
       SELECT
         a.*,
@@ -16,10 +36,10 @@ export const announcementModel = {
       FROM announcements a
       LEFT JOIN users u
         ON a.user_id = u.id
-      WHERE 1 = 1
+      WHERE a.deleted_at IS NULL
     `;
 
-    const params = [];
+    const params: any[] = [];
     let paramIndex = 1;
 
     if (is_alert !== undefined) {
@@ -43,11 +63,10 @@ export const announcementModel = {
     params.push(limit, offset);
 
     const result = await query(sql, params);
-
     return result.rows;
   },
 
-  async findById(id) {
+  async findById(id: number): Promise<Announcement | null> {
     const result = await query(
       `
         SELECT
@@ -56,23 +75,15 @@ export const announcementModel = {
         FROM announcements a
         LEFT JOIN users u
           ON a.user_id = u.id
-        WHERE a.id = $1
+        WHERE a.id = $1 AND a.deleted_at IS NULL
       `,
       [id]
     );
-
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async create(data) {
-    const {
-      title,
-      body,
-      category,
-      department,
-      user_id,
-      is_alert,
-    } = data;
+  async create(data: AnnouncementCreateData): Promise<Announcement> {
+    const { title, body, category, department, user_id, is_alert } = data;
 
     const result = await query(
       `
@@ -82,9 +93,10 @@ export const announcementModel = {
           category,
           department,
           user_id,
-          is_alert
+          is_alert,
+          published_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
         RETURNING *
       `,
       [
@@ -100,14 +112,8 @@ export const announcementModel = {
     return result.rows[0];
   },
 
-  async update(id, data) {
-    const {
-      title,
-      body,
-      category,
-      department,
-      is_alert,
-    } = data;
+  async update(id: number, data: AnnouncementUpdateData): Promise<Announcement | null> {
+    const { title, body, category, department, is_alert } = data;
 
     const result = await query(
       `
@@ -118,32 +124,33 @@ export const announcementModel = {
           category = COALESCE($3, category),
           department = COALESCE($4, department),
           is_alert = COALESCE($5, is_alert)
-        WHERE id = $6
+        WHERE id = $6 AND deleted_at IS NULL
         RETURNING *
       `,
       [
-        title,
-        body,
-        category,
-        department,
-        is_alert,
+        title ?? null,
+        body ?? null,
+        category ?? null,
+        department ?? null,
+        is_alert ?? null,
         id,
       ]
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async delete(id) {
+  async delete(id: number): Promise<{ id: number } | null> {
     const result = await query(
       `
-        DELETE FROM announcements
+        UPDATE announcements
+        SET deleted_at = CURRENT_TIMESTAMP
         WHERE id = $1
         RETURNING id
       `,
       [id]
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 };

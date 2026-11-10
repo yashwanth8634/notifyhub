@@ -47,10 +47,6 @@ export default function AnnouncementsPage() {
   ]);
   const canDelete = hasRole(["super_admin"]);
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
   const fetchAnnouncements = async () => {
     try {
       const data = await getAnnouncements();
@@ -61,6 +57,10 @@ export default function AnnouncementsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

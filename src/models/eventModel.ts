@@ -1,13 +1,33 @@
-// @ts-nocheck
+import { query } from '@/config/db';
+import { Event } from '@/types';
 
-import { query } from "@/config/db";
+interface EventFilters {
+  limit?: number;
+  offset?: number;
+  category?: string;
+}
+
+interface EventCreateData {
+  title: string;
+  description: string;
+  event_date: string;
+  location: string | null;
+  user_id: number;
+  category: string | null;
+}
+
+interface EventUpdateData {
+  title?: string | null;
+  description?: string | null;
+  event_date?: string | null;
+  location?: string | null;
+  category?: string | null;
+}
 
 export const eventModel = {
-  async findAll({
-    limit = 50,
-    offset = 0,
-    category,
-  } = {}) {
+  async findAll(filters: EventFilters = {}): Promise<Event[]> {
+    const { limit = 50, offset = 0, category } = filters;
+    
     let sql = `
       SELECT
         e.*,
@@ -15,13 +35,13 @@ export const eventModel = {
       FROM events e
       LEFT JOIN users u
         ON e.user_id = u.id
-      WHERE 1 = 1
+      WHERE e.deleted_at IS NULL
     `;
 
-    const params = [];
+    const params: any[] = [];
     let index = 1;
 
-    if (category && category !== "All") {
+    if (category && category !== 'All') {
       sql += ` AND e.category = $${index}`;
       params.push(category);
       index++;
@@ -36,11 +56,10 @@ export const eventModel = {
     params.push(limit, offset);
 
     const result = await query(sql, params);
-
     return result.rows;
   },
 
-  async findById(id) {
+  async findById(id: number): Promise<Event | null> {
     const result = await query(
       `
         SELECT
@@ -49,23 +68,15 @@ export const eventModel = {
         FROM events e
         LEFT JOIN users u
           ON e.user_id = u.id
-        WHERE e.id = $1
+        WHERE e.id = $1 AND e.deleted_at IS NULL
       `,
       [id]
     );
-
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async create(data) {
-    const {
-      title,
-      description,
-      event_date,
-      location,
-      user_id,
-      category,
-    } = data;
+  async create(data: EventCreateData): Promise<Event> {
+    const { title, description, event_date, location, user_id, category } = data;
 
     const result = await query(
       `
@@ -84,23 +95,17 @@ export const eventModel = {
         title,
         description,
         event_date,
-        location || null,
+        location ?? null,
         user_id,
-        category || null,
+        category ?? null,
       ]
     );
 
     return result.rows[0];
   },
 
-  async update(id, data) {
-    const {
-      title,
-      description,
-      event_date,
-      location,
-      category,
-    } = data;
+  async update(id: number, data: EventUpdateData): Promise<Event | null> {
+    const { title, description, event_date, location, category } = data;
 
     const result = await query(
       `
@@ -111,32 +116,33 @@ export const eventModel = {
           event_date = COALESCE($3, event_date),
           location = COALESCE($4, location),
           category = COALESCE($5, category)
-        WHERE id = $6
+        WHERE id = $6 AND deleted_at IS NULL
         RETURNING *
       `,
       [
-        title,
-        description,
-        event_date,
-        location,
-        category,
+        title ?? null,
+        description ?? null,
+        event_date ?? null,
+        location ?? null,
+        category ?? null,
         id,
       ]
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 
-  async delete(id) {
+  async delete(id: number): Promise<{ id: number } | null> {
     const result = await query(
       `
-        DELETE FROM events
+        UPDATE events
+        SET deleted_at = CURRENT_TIMESTAMP
         WHERE id = $1
         RETURNING id
       `,
       [id]
     );
 
-    return result.rows[0];
+    return result.rows[0] ?? null;
   },
 };

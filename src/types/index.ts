@@ -14,12 +14,14 @@ export interface Announcement {
   id: number;
   title: string;
   body: string;
-  category: string;
-  department: string;
+  category: string | null;
+  department: string | null;
   user_id: number;
   author_name?: string;
   published_at: string;
   is_alert: boolean;
+  created_at: string;
+  deleted_at: string | null;
 }
 
 export interface Event {
@@ -30,8 +32,13 @@ export interface Event {
   location: string | null;  
   user_id: number;
   author_name?: string;
-  category?: string | null;
+  category: string | null;
+  department: string | null;
+  created_at: string;
+  deleted_at: string | null;
 }
+
+export type QueryStatus = 'open' | 'in_progress' | 'resolved';
 
 export interface Query {
   id: number;
@@ -40,7 +47,7 @@ export interface Query {
   email: string | null;
   subject: string;
   message: string;
-  status: 'open' | 'resolved';
+  status: QueryStatus;
   response: string | null;
   created_at: string;
   responded_at: string | null;

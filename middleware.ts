@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '@/config/env';
+import { ROLES } from '@/lib/auth';
 
-const protectedPrefixes = ['/admin', '/principal', '/dean', '/hod', '/faculty'];
-const roleMap: Record<string, string[]> = {
+const protectedPrefixes = ['/admin', '/principal', '/dean', '/hod', '/faculty'] as const;
+
+const roleMap: Record<string, (typeof ROLES)[number][]> = {
   '/admin': ['super_admin'],
   '/principal': ['principal', 'super_admin'],
   '/dean': ['dean', 'super_admin'],
@@ -31,7 +33,7 @@ export function middleware(request: NextRequest) {
     const payload = jwt.verify(token, JWT_SECRET) as { role?: string };
     const allowedRoles = roleMap[matchedPrefix] || [];
 
-    if (!payload.role || !allowedRoles.includes(payload.role)) {
+    if (!payload.role || !allowedRoles.includes(payload.role as (typeof ROLES)[number])) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 

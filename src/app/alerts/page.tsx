@@ -32,10 +32,6 @@ export default function AlertsPage() {
   ]);
   const canDelete = hasRole(["super_admin"]);
 
-  useEffect(() => {
-    fetchAlerts();
-  }, []);
-
   const fetchAlerts = async () => {
     try {
       const data = await getAlerts();
@@ -46,6 +42,10 @@ export default function AlertsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

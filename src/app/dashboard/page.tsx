@@ -77,11 +77,6 @@ export default function DashboardPage() {
   const [resetPasswordValue, setResetPasswordValue] = useState("");
   const [isResetting, setIsResetting] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-    fetchQueries();
-  }, []);
-
   // --- User API calls ---
   const fetchUsers = async () => {
     try {
@@ -93,6 +88,22 @@ export default function DashboardPage() {
       setUsersLoading(false);
     }
   };
+
+  const fetchQueries = async () => {
+    try {
+      const data = await getQueries();
+      setQueries(data);
+    } catch (error) {
+      console.error("Failed to fetch queries:", error);
+    } finally {
+      setQueriesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    fetchQueries();
+  }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,16 +213,7 @@ export default function DashboardPage() {
   };
 
   // --- Queries API calls ---
-  const fetchQueries = async () => {
-    try {
-      const data = await getQueries();
-      setQueries(data);
-    } catch (error) {
-      console.error("Failed to fetch queries:", error);
-    } finally {
-      setQueriesLoading(false);
-    }
-  };
+  
 
   // Role availability controls (only one principal allowed)
   const hasPrincipal = users.some((u) => u.role === "principal");

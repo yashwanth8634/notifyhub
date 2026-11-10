@@ -1,67 +1,70 @@
-// @ts-nocheck
+import { eventModel } from '@/models/eventModel';
+import { AuthError } from '@/lib/auth';
+import { User, Event, EventFilters } from '@/types';
 
-import { eventModel } from "@/models/eventModel";
+interface EventCreateData {
+  title: string;
+  description: string;
+  event_date: string;
+  location?: string | null;
+  category?: string | null;
+}
+
+interface EventUpdateData {
+  title?: string | null;
+  description?: string | null;
+  event_date?: string | null;
+  location?: string | null;
+  category?: string | null;
+}
+
+interface AuthUser {
+  id: number;
+  role: string;
+}
 
 export const eventService = {
-  async findAll(filters = {}) {
+  async findAll(filters: EventFilters = {}): Promise<Event[]> {
     return eventModel.findAll(filters);
   },
 
-  async create(user, data) {
+  async create(user: AuthUser, data: EventCreateData): Promise<Event> {
     return eventModel.create({
       ...data,
       user_id: user.id,
     });
   },
 
-  async update(user, id, data) {
+  async update(user: AuthUser, id: number, data: EventUpdateData): Promise<Event | null> {
     const existing = await eventModel.findById(id);
 
     if (!existing) {
-      throw {
-        status: 404,
-        message: "Event not found",
-        code: "NOT_FOUND",
-      };
+      throw new AuthError('NOT_FOUND', 404, 'Event not found');
     }
 
-    if (
-      user.role !== "super_admin" &&
-      user.role !== "principal" &&
-      user.role !== "dean" &&
-      existing.user_id !== user.id
-    ) {
-      throw {
-        status: 403,
-        message: "You cannot update this event",
-        code: "FORBIDDEN",
-      };
+    const canUpdate = user.role === 'super_admin' || 
+                      user.role === 'principal' || 
+                      user.role === 'dean' || 
+                      existing.user_id === user.id;
+
+    if (!canUpdate) {
+      throw new AuthError('FORBIDDEN', 403, 'You cannot update this event');
     }
 
     return eventModel.update(id, data);
   },
 
-  async delete(user, id) {
-    if (user.role !== "super_admin") {
-      throw {
-        status: 403,
-        message: "Only Super Admin can delete events",
-        code: "FORBIDDEN",
-      };
+  async delete(user: AuthUser, id: number): Promise<{ success: boolean }> {
+    if (user.role !== 'super_admin') {
+      throw new AuthError('FORBIDDEN', 403, 'Only Super Admin can delete events');
     }
 
     const deleted = await eventModel.delete(id);
 
     if (!deleted) {
-      throw {
-        status: 404,
-        message: "Event not found",
-        code: "NOT_FOUND",
-      };
+      throw new AuthError('NOT_FOUND', 404, 'Event not found');
     }
 
-    return {
-      success: true,
-    };
+    return { success: true };
   },
 };

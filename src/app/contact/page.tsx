@@ -2,12 +2,11 @@
 
 import { createQuery, getQueryById } from "@/actions/queries";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { MessageSquare, Send, Search, X, CheckCircle } from "lucide-react";
+import { Send, Search, X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/Button";
+import { Query } from "@/types";
 
 export default function ContactPage() {
-  const { isAuthenticated } = useAuth();
 
   const [name, setName] = useState("");
   const [rollNo, setRollNo] = useState("");
@@ -27,7 +26,7 @@ export default function ContactPage() {
   const [ticketId, setTicketId] = useState("");
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackingError, setTrackingError] = useState("");
-  const [trackedQuery, setTrackedQuery] = useState<any>(null);
+  const [trackedQuery, setTrackedQuery] = useState<Query | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
