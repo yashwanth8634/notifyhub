@@ -22,7 +22,13 @@ export default function ProfilePage() {
     password: "",
   });
 
-  const canAccessProfile = hasRole(["faculty", "hod", "dean", "principal"]);
+  const canAccessProfile = hasRole([
+    "super_admin",
+    "faculty",
+    "hod",
+    "dean",
+    "principal",
+  ]);
 
   const fetchProfileData = async () => {
     try {

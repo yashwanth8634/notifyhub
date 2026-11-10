@@ -1,6 +1,11 @@
 import { AuthProvider } from '../context/AuthContext';
 import { Layout as AppLayout } from '../components/Layout';
+import type { Metadata } from 'next';
 import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'NotifyHub',
+};
 
 export default function RootLayout({
   children,
