@@ -1,6 +1,8 @@
 import { announcementModel } from '@/models/announcementModel';
 import { webhookService } from './webhookService';
+import { pushNotificationService } from './pushNotificationService';
 import { AuthError } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import { User, Announcement, AnnouncementFilters } from '@/types';
 
 interface AnnouncementCreateData {
@@ -43,6 +45,17 @@ export const announcementService = {
         : 'announcement.created',
       announcement
     );
+    void pushNotificationService.dispatch({
+      title: data.is_alert ? 'New urgent alert' : 'New announcement',
+      body: data.title,
+      url: data.is_alert ? '/alerts' : '/announcements',
+      tag: data.is_alert ? 'alert-created' : 'announcement-created',
+    }).catch((error) => {
+      logger.error('Push notification dispatch failed', {
+        action: 'push_dispatch_failed',
+        metadata: { error: error instanceof Error ? error.message : 'Unknown error' },
+      });
+    });
 
     return announcement;
   },
